@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TWT International - Document Generator</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Mobile Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="assets/twt-logo.png" alt="TWT" width="30" height="30" class="me-2" 
+                     onerror="this.src='assets/twt-logo.svg'">
+                <span class="fw-bold">TWT INTERNATIONAL</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light btn-sm" onclick="toggleDarkMode()">
+                            <i class="fas fa-moon"></i> Dark Mode
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid pt-5 mt-3">
+        <div class="row">
+            <!-- Sidebar for larger screens -->
+            <div class="col-lg-3 d-none d-lg-block">
+                <div class="card sticky-top" style="top: 80px;">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-list"></i> Quick Actions</h6>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-sm" onclick="newDoc()">
+                                <i class="fas fa-plus"></i> New Document
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="clearForm()">
+                                <i class="fas fa-broom"></i> Clear Form
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="showHistory()">
+                                <i class="fas fa-history"></i> History
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Progress Indicator -->
+                <div class="progress mb-3" style="height: 6px;">
+                    <div class="progress-bar" id="progressBar" role="progressbar" style="width: 10%"></div>
+                </div>
+
+                <!-- Document Type Selection -->
+                <div class="card mb-3" id="step1">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-file-alt"></i> Document Type</h5>
+                        <span class="badge bg-primary">Step 1/6</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Select Document Type</label>
+                                <select class="form-select form-select-lg" id="docType" onchange="updateProgress(1)">
+                                    <option value="">Choose document type...</option>
+                                    <option value="QUOTATION">QUOTATION</option>
+                                    <option value="BILL INVOICE">BILL INVOICE</option>
+                                    <option value="PROFORMA INVOICE">PROFORMA INVOICE</option>
+                                    <option value="PURCHASE ORDER">PURCHASE ORDER</option>
+                                    <option value="COMMERCIAL INVOICE">COMMERCIAL INVOICE</option>
+                                    <option value="PACKING LIST">PACKING LIST</option>
+                                    <option value="CUSTOM">Custom Type</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="customTypeDiv" style="display: none;">
+                                <input type="text" class="form-control" id="customDocType" placeholder="Enter custom document type">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Information -->
+                <div class="card mb-3" id="step2">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link p-0 text-decoration-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#companyInfo">
+                                <i class="fas fa-building"></i> Company Information
+                                <i class="fas fa-chevron-down ms-2"></i>
+                            </button>
+                        </h5>
+                        <span class="badge bg-primary">Step 2/6</span>
+                    </div>
+                    <div class="collapse show" id="companyInfo">
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <div class="text-center mb-3">
+                                        <img src="assets/twt-logo.png" alt="TWT Logo" class="img-fluid" style="max-height: 60px;"
+                                             onerror="this.src='assets/twt-logo.svg'">
+                                        <h6 class="mt-2 mb-1 fw-bold">TWT INTERNATIONAL</h6>
+                                        <small class="text-muted">International Courier • Door to Door • C&F Agent • Worldwide Service</small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Office Addresses</label>
+                                    <div id="officeAddressesList">
+                                        <div class="office-address-item mb-3 p-3 border rounded">
+                                            <div class="row g-2">
+                                                <div class="col-4">
+                                                    <input type="text" class="form-control office-city" placeholder="City" value="Chittagong">
+                                                </div>
+                                                <div class="col-8">
+                                                    <textarea class="form-control office-address" rows="2" placeholder="Address">Jafor Mantion, Gosailidanga Barikmia School Road (1st Floor)</textarea>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button type="button" class="btn btn-sm btn-danger remove-office" style="display: none;">Remove Office</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="office-address-item mb-3 p-3 border rounded">
+                                            <div class="row g-2">
+                                                <div class="col-4">
+                                                    <input type="text" class="form-control office-city" placeholder="City" value="Dhaka">
+                                                </div>
+                                                <div class="col-8">
+                                                    <textarea class="form-control office-address" rows="2" placeholder="Address">60/E dewan Complex purana palton</textarea>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button type="button" class="btn btn-sm btn-danger remove-office">Remove Office</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="office-address-item mb-3 p-3 border rounded">
+                                            <div class="row g-2">
+                                                <div class="col-4">
+                                                    <input type="text" class="form-control office-city" placeholder="City" value="Benapole">
+                                                </div>
+                                                <div class="col-8">
+                                                    <textarea class="form-control office-address" rows="2" placeholder="Address">Alikador Building, Benapole Bazar</textarea>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button type="button" class="btn btn-sm btn-danger remove-office">Remove Office</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-success" onclick="addOfficeAddress()">
+                                        <i class="fas fa-plus"></i> Add Another Office
+                                    </button>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Payment Methods</label>
+                                    <div id="bankAccountsList">
+                                        <div class="bank-account-item mb-3 p-3 border rounded">
+                                            <select class="form-select mb-2" name="bankAccount">
+                                                <option value="brac">BRAC BANK - A/C: 2403203439839001</option>
+                                                <option value="islami">Islami Bank - A/C: 20502370201006835</option>
+                                                <option value="dutch">Dutch Bangla Bank - A/C: 1051234567890</option>
+                                                <option value="city">City Bank - A/C: 1501234567890</option>
+                                                <option value="nagad">Nagad - A/C: 01712959737</option>
+                                                <option value="bkash">bKash - A/C: 01752457930</option>
+                                                <option value="rocket">Rocket - A/C: 01712959737-5</option>
+                                                <option value="upay">Upay - A/C: 01752457930</option>
+                                                <option value="custom">Custom Payment Method</option>
+                                            </select>
+                                            <textarea class="form-control custom-bank-details" rows="2" placeholder="Enter custom payment details (only for custom option)" style="display: none;"></textarea>
+                                            <button type="button" class="btn btn-sm btn-danger mt-2 remove-bank" style="display: none;">Remove</button>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-success" onclick="addBankAccount()">
+                                        <i class="fas fa-plus"></i> Add Another Payment Method
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document & Client Information -->
+                <div class="card mb-3" id="step3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link p-0 text-decoration-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#docClientInfo">
+                                <i class="fas fa-user-tie"></i> Document & Client Info
+                                <i class="fas fa-chevron-down ms-2"></i>
+                            </button>
+                        </h5>
+                        <span class="badge bg-primary">Step 3/6</span>
+                    </div>
+                    <div class="collapse show" id="docClientInfo">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="form-label">Document No.</label>
+                                    <input type="text" class="form-control" id="docNo" value="">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="docDate">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Client Name</label>
+                                    <input type="text" class="form-control" id="clientName" placeholder="Enter client name">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Client Address</label>
+                                    <textarea class="form-control" id="clientAddress" rows="3" placeholder="Enter complete address"></textarea>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" id="clientPhone" placeholder="+880">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="clientEmail" placeholder="client@email.com">
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-outline-success btn-sm w-100" onclick="saveClient()">
+                                        <i class="fas fa-save"></i> Save Client for Future Use
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import/Export Details -->
+                <div class="card mb-3" id="step4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link p-0 text-decoration-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#importExportInfo">
+                                <i class="fas fa-ship"></i> Import/Export Details
+                                <i class="fas fa-chevron-down ms-2"></i>
+                            </button>
+                        </h5>
+                        <span class="badge bg-primary">Step 4/6</span>
+                    </div>
+                    <div class="collapse show" id="importExportInfo">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="form-label">From Country</label>
+                                    <input type="text" class="form-control" id="fromCountry" placeholder="e.g., Bangladesh">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">To Country</label>
+                                    <input type="text" class="form-control" id="toCountry" placeholder="e.g., India">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Loading Port</label>
+                                    <input type="text" class="form-control" id="loadingPort" placeholder="e.g., Chittagong">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Discharge Port</label>
+                                    <input type="text" class="form-control" id="dischargePort" placeholder="e.g., Kolkata">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">L/C Number</label>
+                                    <input type="text" class="form-control" id="lcNumber" placeholder="LC Number">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">B/L Number</label>
+                                    <input type="text" class="form-control" id="blNumber" placeholder="Bill of Lading">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">HS Code</label>
+                                    <input type="text" class="form-control" id="hsCode" placeholder="HS Code">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Customs Declaration</label>
+                                    <input type="text" class="form-control" id="customsDecl" placeholder="Declaration No.">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Invoice Number</label>
+                                    <input type="text" class="form-control" id="invoiceNumber" placeholder="Commercial Invoice No.">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Packing List No.</label>
+                                    <input type="text" class="form-control" id="packingListNo" placeholder="Packing List Number">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Container No.</label>
+                                    <input type="text" class="form-control" id="containerNo" placeholder="Container Number">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Seal No.</label>
+                                    <input type="text" class="form-control" id="sealNo" placeholder="Seal Number">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Vessel Name</label>
+                                    <input type="text" class="form-control" id="vesselName" placeholder="Ship/Vessel Name">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">ETD/ETA</label>
+                                    <input type="text" class="form-control" id="etdEta" placeholder="Expected Date">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Shipping Line</label>
+                                    <input type="text" class="form-control" id="shippingLine" placeholder="Shipping Company">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Incoterms</label>
+                                    <select class="form-select" id="incoterms">
+                                        <option value="">Select Incoterms</option>
+                                        <option value="FOB">FOB - Free on Board</option>
+                                        <option value="CIF">CIF - Cost, Insurance & Freight</option>
+                                        <option value="CFR">CFR - Cost and Freight</option>
+                                        <option value="EXW">EXW - Ex Works</option>
+                                        <option value="FCA">FCA - Free Carrier</option>
+                                        <option value="CPT">CPT - Carriage Paid To</option>
+                                        <option value="CIP">CIP - Carriage and Insurance Paid</option>
+                                        <option value="DAP">DAP - Delivered at Place</option>
+                                        <option value="DPU">DPU - Delivered at Place Unloaded</option>
+                                        <option value="DDP">DDP - Delivered Duty Paid</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Received By (Representative Name)</label>
+                                    <input type="text" class="form-control" id="receivedBy" placeholder="Name of receiving representative">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Received Date</label>
+                                    <input type="date" class="form-control" id="receivedDate">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Document Type</label>
+                                    <select class="form-select" id="documentType">
+                                        <option value="COMMERCIAL_INVOICE">Commercial Invoice</option>
+                                        <option value="PROFORMA_INVOICE">Proforma Invoice</option>
+                                        <option value="EXPORT_INVOICE">Export Invoice</option>
+                                        <option value="QUOTATION">Quotation</option>
+                                        <option value="PURCHASE_ORDER">Purchase Order</option>
+                                        <option value="DELIVERY_CHALLAN">Delivery Challan</option>
+                                        <option value="PACKING_LIST">Packing List</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Incoterms</label>
+                                    <select class="form-select" id="incoterms">
+                                        <option value="">Select...</option>
+                                        <option value="FOB">FOB</option>
+                                        <option value="CIF">CIF</option>
+                                        <option value="CFR">CFR</option>
+                                        <option value="EXW">EXW</option>
+                                        <option value="DDP">DDP</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Transport</label>
+                                    <select class="form-select" id="transport">
+                                        <option value="">Select...</option>
+                                        <option value="Sea">Sea</option>
+                                        <option value="Air">Air</option>
+                                        <option value="Land">Land</option>
+                                        <option value="Multimodal">Multimodal</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="card mb-3" id="step5">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-box"></i> Products</h5>
+                        <span class="badge bg-primary">Step 5/6</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Product List</h6>
+                            <button class="btn btn-success btn-sm" onclick="addProduct()">
+                                <i class="fas fa-plus"></i> Add Product
+                            </button>
+                        </div>
+                        
+                        <!-- Mobile Product List -->
+                        <div id="productList" class="d-block d-md-none">
+                            <!-- Products will be added here for mobile -->
+                        </div>
+
+                        <!-- Desktop Table -->
+                        <div class="table-responsive d-none d-md-block">
+                            <table class="table table-sm" id="productTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="15%">Product Name</th>
+                                        <th width="15%">Description</th>
+                                        <th width="10%">Model</th>
+                                        <th width="8%">Qty</th>
+                                        <th width="8%">Unit</th>
+                                        <th width="12%">Weight/Spec</th>
+                                        <th width="10%">Special Details</th>
+                                        <th width="8%">Rate</th>
+                                        <th width="8%">Amount</th>
+                                        <th width="6%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Products will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Details -->
+                <div class="card mb-3" id="step6">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-calculator"></i> Financial Details</h5>
+                        <span class="badge bg-primary">Step 6/6</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">Currency</label>
+                                <select class="form-select" id="currency" onchange="updateCurrencySymbols()">
+                                    <option value="BDT" data-symbol="৳">BDT - Bangladeshi Taka</option>
+                                    <option value="USD" data-symbol="$">USD - US Dollar</option>
+                                    <option value="EUR" data-symbol="€">EUR - Euro</option>
+                                    <option value="GBP" data-symbol="£">GBP - British Pound</option>
+                                    <option value="INR" data-symbol="₹">INR - Indian Rupee</option>
+                                    <option value="CNY" data-symbol="¥">CNY - Chinese Yuan</option>
+                                    <option value="JPY" data-symbol="¥">JPY - Japanese Yen</option>
+                                    <option value="AED" data-symbol="د.إ">AED - UAE Dirham</option>
+                                    <option value="SAR" data-symbol="ر.س">SAR - Saudi Riyal</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Exchange Rate (if applicable)</label>
+                                <input type="number" class="form-control" id="exchangeRate" placeholder="1.00" step="0.0001">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Subtotal</label>
+                                <input type="number" class="form-control" id="subtotal" readonly>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Discount (%)</label>
+                                <input type="number" class="form-control" id="discount" value="0" onchange="calculateTotal()">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Shipping Cost</label>
+                                <input type="number" class="form-control" id="shipping" value="0" onchange="calculateTotal()">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Tax/VAT (%)</label>
+                                <input type="number" class="form-control" id="tax" value="0" onchange="calculateTotal()">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Total Amount</label>
+                                <input type="number" class="form-control fw-bold" id="totalAmount" readonly>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Amount in Words</label>
+                                <input type="text" class="form-control" id="amountWords" readonly>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Advance Payment</label>
+                                <input type="number" class="form-control" id="advance" value="0" onchange="calculateBalance()">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Remaining Balance</label>
+                                <input type="number" class="form-control" id="balance" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link p-0 text-decoration-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#termsConditions">
+                                <i class="fas fa-file-contract"></i> Terms & Conditions
+                                <i class="fas fa-chevron-down ms-2"></i>
+                            </button>
+                        </h5>
+                    </div>
+                    <div class="collapse show" id="termsConditions">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Payment Terms</label>
+                                    <input type="text" class="form-control" id="paymentTerms" placeholder="e.g., 30 days from invoice date">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Delivery Terms</label>
+                                    <input type="text" class="form-control" id="deliveryTerms" placeholder="e.g., FOB Chittagong Port">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Validity Period</label>
+                                    <input type="text" class="form-control" id="validityPeriod" placeholder="e.g., This quotation is valid for 30 days">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Additional Terms</label>
+                                    <textarea class="form-control" id="additionalTerms" rows="4" placeholder="Enter any additional terms and conditions..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeStandardTerms" checked>
+                                        <label class="form-check-label" for="includeStandardTerms">
+                                            Include standard terms and conditions
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card mb-5">
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <button class="btn btn-success w-100" onclick="generatePNG()">
+                                    <i class="fas fa-image"></i> Generate Invoice (PNG)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation for Mobile -->
+    <nav class="navbar navbar-dark bg-dark fixed-bottom d-block d-lg-none">
+        <div class="container-fluid">
+            <div class="row w-100 text-center">
+                <div class="col-4">
+                    <button class="btn btn-link text-white p-1" onclick="addProduct()">
+                        <i class="fas fa-plus d-block"></i>
+                        <small>Add Product</small>
+                    </button>
+                </div>
+                <div class="col-4">
+                    <button class="btn btn-link text-white p-1" onclick="generatePNG()">
+                        <i class="fas fa-image d-block"></i>
+                        <small>Generate</small>
+                    </button>
+                </div>
+                <div class="col-4">
+                    <button class="btn btn-link text-white p-1" onclick="clearForm()">
+                        <i class="fas fa-broom d-block"></i>
+                        <small>Clear</small>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating Action Button -->
+    <div class="fab-container d-block d-lg-none">
+        <button class="fab-main btn btn-primary rounded-circle" onclick="toggleFab()">
+            <i class="fas fa-plus"></i>
+        </button>
+        <div class="fab-menu" id="fabMenu">
+            <button class="fab-item btn btn-success rounded-circle" onclick="addProduct()" title="Add Product">
+                <i class="fas fa-box"></i>
+            </button>
+            <button class="fab-item btn btn-warning rounded-circle" onclick="saveDraft()" title="Save Draft">
+                <i class="fas fa-save"></i>
+            </button>
+            <button class="fab-item btn btn-info rounded-circle" onclick="generateQR()" title="Generate QR">
+                <i class="fas fa-qrcode"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/pdf-generator.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
