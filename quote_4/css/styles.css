@@ -40,6 +40,44 @@ body {
   min-width: 44px;
 }
 
+/* Fix Mobile Keyboard Issues */
+@media (max-width: 768px) {
+  .form-control, .form-select, input, textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+  }
+  
+  /* Product input fields specific fixes */
+  .product-card .form-control {
+    font-size: 16px !important;
+    padding: 12px;
+    border: 2px solid #dc3545;
+    background-color: #fff5f5;
+    transition: all 0.3s ease;
+  }
+  
+  .product-card .form-control:focus {
+    border-color: #28a745;
+    background-color: #f8fff8;
+    outline: none;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
+  }
+  
+  /* Input labels in green */
+  .product-card label {
+    color: #28a745 !important;
+    font-weight: bold;
+    font-size: 14px;
+  }
+}
+
 /* Cards */
 .card {
   border: none;
@@ -80,20 +118,24 @@ body {
 /* Forms */
 .form-control, .form-select {
   border-radius: var(--border-radius);
-  border: 2px solid #e9ecef;
+  border: 2px solid #dc3545;
+  background-color: #fff5f5;
   padding: 0.75rem;
   font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+  border-color: #28a745;
+  background-color: #f8fff8;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
 
 .form-label {
-  font-weight: 600;
-  color: var(--dark-color);
+  font-weight: bold;
+  color: #28a745 !important;
   margin-bottom: 0.5rem;
+  font-size: 1.1rem;
 }
 
 /* Buttons */

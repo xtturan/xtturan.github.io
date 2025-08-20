@@ -1100,3 +1100,131 @@ function validateDocument() {
     
     return errors;
 }
+
+// Add Bank Account functionality
+function addBankAccount() {
+    const bankAccountsList = document.getElementById('bankAccountsList');
+    const newBankDiv = document.createElement('div');
+    newBankDiv.className = 'bank-account-item mb-3 p-3 border rounded';
+    
+    newBankDiv.innerHTML = `
+        <select class="form-select mb-2" name="bankAccount">
+            <option value="brac">BRAC BANK - A/C: 2403203439839001</option>
+            <option value="islami">Islami Bank - A/C: 20502370201006835</option>
+            <option value="dutch">Dutch Bangla Bank - A/C: 1051234567890</option>
+            <option value="city">City Bank - A/C: 1501234567890</option>
+            <option value="nagad">Nagad - A/C: 01712959737</option>
+            <option value="bkash">bKash - A/C: 01752457930</option>
+            <option value="rocket">Rocket - A/C: 01712959737-5</option>
+            <option value="upay">Upay - A/C: 01752457930</option>
+            <option value="custom">Custom Payment Method</option>
+        </select>
+        <textarea class="form-control custom-bank-details" rows="2" placeholder="Enter custom payment details (only for custom option)" style="display: none;"></textarea>
+        <button type="button" class="btn btn-sm btn-danger mt-2 remove-bank">Remove</button>
+    `;
+    
+    bankAccountsList.appendChild(newBankDiv);
+    
+    // Add event listeners for the new bank account
+    const selectElement = newBankDiv.querySelector('select[name="bankAccount"]');
+    const customTextarea = newBankDiv.querySelector('.custom-bank-details');
+    const removeButton = newBankDiv.querySelector('.remove-bank');
+    
+    selectElement.addEventListener('change', function() {
+        if (this.value === 'custom') {
+            customTextarea.style.display = 'block';
+        } else {
+            customTextarea.style.display = 'none';
+        }
+    });
+    
+    removeButton.addEventListener('click', function() {
+        bankAccountsList.removeChild(newBankDiv);
+        updateRemoveButtons();
+    });
+    
+    updateRemoveButtons();
+}
+
+// Update remove button visibility for bank accounts
+function updateRemoveButtons() {
+    const bankItems = document.querySelectorAll('.bank-account-item');
+    bankItems.forEach((item, index) => {
+        const removeBtn = item.querySelector('.remove-bank');
+        if (index === 0 && bankItems.length === 1) {
+            removeBtn.style.display = 'none';
+        } else {
+            removeBtn.style.display = 'inline-block';
+        }
+    });
+}
+
+// Add Office Address functionality
+function addOfficeAddress() {
+    const officeAddressesList = document.getElementById('officeAddressesList');
+    const newOfficeDiv = document.createElement('div');
+    newOfficeDiv.className = 'office-address-item mb-3 p-3 border rounded';
+    
+    newOfficeDiv.innerHTML = `
+        <div class="row g-2">
+            <div class="col-4">
+                <input type="text" class="form-control office-city" placeholder="City">
+            </div>
+            <div class="col-8">
+                <textarea class="form-control office-address" rows="2" placeholder="Address"></textarea>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn btn-sm btn-danger remove-office">Remove Office</button>
+            </div>
+        </div>
+    `;
+    
+    officeAddressesList.appendChild(newOfficeDiv);
+    
+    // Add event listener for remove button
+    const removeButton = newOfficeDiv.querySelector('.remove-office');
+    removeButton.addEventListener('click', function() {
+        officeAddressesList.removeChild(newOfficeDiv);
+        updateOfficeRemoveButtons();
+    });
+    
+    updateOfficeRemoveButtons();
+}
+
+// Update remove button visibility for office addresses
+function updateOfficeRemoveButtons() {
+    const officeItems = document.querySelectorAll('.office-address-item');
+    officeItems.forEach((item, index) => {
+        const removeBtn = item.querySelector('.remove-office');
+        if (index === 0 && officeItems.length === 1) {
+            removeBtn.style.display = 'none';
+        } else {
+            removeBtn.style.display = 'inline-block';
+        }
+    });
+}
+
+// Clear form function (updated)
+function clearForm() {
+    if (confirm('Are you sure you want to clear all form data?')) {
+        // Clear all form fields
+        document.querySelectorAll('input, textarea, select').forEach(field => {
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                field.checked = false;
+            } else {
+                field.value = '';
+            }
+        });
+        
+        // Clear products array
+        products = [];
+        window.products = products;
+        updateProductDisplay();
+        
+        // Reset to defaults
+        setCurrentDate();
+        generateDocNumber();
+        
+        showToast('Form cleared successfully', 'success');
+    }
+}

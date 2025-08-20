@@ -104,7 +104,10 @@ class TWTPDFGenerator {
             // Tagline
             pdf.setFontSize(this.fontSize.normal);
             pdf.setFont(undefined, 'normal');
-            pdf.text('Importer, Exporter & Supplier', this.margin, this.currentY + 16);
+            pdf.text('International Courier Service | Door to Door Service | C&F Agent Service', this.margin, this.currentY + 16);
+            pdf.text('International Payment Support | Product Sourcing | Shipping/Container Support', this.margin, this.currentY + 20);
+            pdf.text('Freight Forwarding | L/C Received Support | Warehouse Support | Supplier Verification', this.margin, this.currentY + 24);
+            pdf.text('Product Quality Verification | Product Packaging Facilities | Worldwide Service', this.margin, this.currentY + 28);
             
             // Document type on the right
             pdf.setFontSize(this.fontSize.subtitle);
@@ -664,7 +667,12 @@ class TWTPDFGenerator {
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <h1 style="margin: 0; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">TWT INTERNATIONAL</h1>
-                        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">Importer, Exporter & Supplier</p>
+                        <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9; line-height: 1.4;">
+                            International Courier Service • Door to Door Service • C&F Agent Service<br>
+                            International Payment Support • Product Sourcing • Shipping/Container Support<br>
+                            Freight Forwarding • L/C Received Support • Warehouse Support • Supplier Verification<br>
+                            Product Quality Verification • Product Packaging Facilities • Worldwide Service
+                        </p>
                     </div>
                     <div style="text-align: right;">
                         <h2 style="margin: 0; font-size: 24px; background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 25px; backdrop-filter: blur(10px);">${data.docType}</h2>
@@ -679,8 +687,7 @@ class TWTPDFGenerator {
                         <span><i style="color: #0066cc;">✉️</i> rahmanazad100@gmail.com</span>
                     </div>
                     <div style="font-size: 11px; color: #666;">
-                        <div>🏢 Chittagong: Jafor Mantion, Gosailidanga Barikmia School Road (1st Floor)</div>
-                        <div>🏢 Dhaka: 60/E dewan Complex purana palton | Benapole: Alikador Building, Benapole Bazar</div>
+                        ${this.generateOfficeAddressesHTML(data)}
                     </div>
                 </div>
             </div>
@@ -924,6 +931,64 @@ class TWTPDFGenerator {
         return html;
     }
 
+    // Generate office addresses from form data
+    generateOfficeAddressesHTML(data) {
+        const officeItems = document.querySelectorAll('.office-address-item');
+        let officesHTML = '';
+        
+        officeItems.forEach(item => {
+            const city = item.querySelector('.office-city').value;
+            const address = item.querySelector('.office-address').value;
+            if (city && address) {
+                officesHTML += `<div>🏢 ${city}: ${address}</div>`;
+            }
+        });
+        
+        // Fallback to default if no offices are entered
+        if (!officesHTML) {
+            officesHTML = `
+                <div>🏢 Chittagong: Jafor Mantion, Gosailidanga Barikmia School Road (1st Floor)</div>
+                <div>🏢 Dhaka: 60/E dewan Complex purana palton | Benapole: Alikador Building, Benapole Bazar</div>
+            `;
+        }
+        
+        return officesHTML;
+    }
+
+    // Generate bank details from multiple accounts
+    generateBankDetailsHTML(data) {
+        const bankItems = document.querySelectorAll('.bank-account-item');
+        let banksHTML = '';
+        
+        bankItems.forEach(item => {
+            const select = item.querySelector('select[name="bankAccount"]');
+            const customDetails = item.querySelector('.custom-bank-details');
+            
+            if (select.value === 'custom' && customDetails.value) {
+                banksHTML += `<div style="margin-bottom: 8px;">${customDetails.value}</div>`;
+            } else if (select.value !== 'custom') {
+                const selectedOption = select.options[select.selectedIndex];
+                if (selectedOption && selectedOption.text) {
+                    banksHTML += `<div style="margin-bottom: 8px;">${selectedOption.text}</div>`;
+                }
+            }
+        });
+        
+        // Fallback to default if no banks are selected
+        if (!banksHTML) {
+            banksHTML = '<div>BRAC BANK, Benapole Branch<br>M/S TWT INTERNATIONAL<br>A/C No: 2403203439839001</div>';
+        }
+        
+        return `
+            <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%); padding: 20px; margin-top: 25px; border-radius: 10px; border-left: 5px solid #28a745;">
+                <h4 style="color: #2e7d32; margin: 0 0 15px 0; font-size: 16px;">🏦 Payment Methods</h4>
+                <div style="color: #555; line-height: 1.6; font-size: 14px;">
+                    ${banksHTML}
+                </div>
+            </div>
+        `;
+    }
+
     // Get currency symbol
     getCurrencySymbol(currency) {
         const symbols = {
@@ -1055,22 +1120,6 @@ class TWTPDFGenerator {
             <div style="background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); padding: 20px; border-radius: 15px; border-left: 5px solid #ff9800; max-width: 400px;">
                 <h4 style="color: #e65100; margin: 0 0 15px 0; font-size: 16px;">📋 Terms & Conditions</h4>
                 ${termsContent}
-            </div>
-        `;
-    }
-
-    // Generate bank details section
-    generateBankDetailsHTML(data) {
-        const bankInfo = data.bankAccount === 'custom' && data.customBank ? 
-            data.customBank : 
-            'BRAC BANK, Benapole Branch<br>M/S TWT INTERNATIONAL<br>A/C No: 2403203439839001';
-            
-        return `
-            <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%); padding: 20px; margin-top: 25px; border-radius: 10px; border-left: 5px solid #28a745;">
-                <h4 style="color: #2e7d32; margin: 0 0 15px 0; font-size: 16px;">🏦 Banking Details</h4>
-                <div style="color: #555; line-height: 1.6; font-size: 14px;">
-                    ${bankInfo}
-                </div>
             </div>
         `;
     }
