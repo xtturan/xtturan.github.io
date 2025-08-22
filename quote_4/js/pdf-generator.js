@@ -137,25 +137,9 @@ class TWTPDFGenerator {
                 throw new Error('Failed to generate image data');
             }
             
-            // Get filename from user (with fallback option)
-            let filename;
-            
-            // Check if we should skip the filename prompt
-            const skipFilenamePrompt = localStorage.getItem('skipFilenamePrompt') === 'true';
-            
-            if (skipFilenamePrompt) {
-                filename = this.getDocumentFileName(data);
-                console.log('Skipping filename prompt, using default:', filename);
-            } else {
-                filename = await this.promptForFilename(data);
-            }
-            
-            // If user cancelled, don't download
-            if (filename === null) {
-                this.hideLoading();
-                this.showToast('PNG generation cancelled.', 'info');
-                return false;
-            }
+            // Get filename from input field (no modal needed)
+            const filename = window.getPngFilename ? window.getPngFilename() : this.getDocumentFileName(data);
+            console.log('Using filename from input field:', filename);
             
             const link = document.createElement('a');
             link.download = `${filename}.png`;

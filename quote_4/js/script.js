@@ -68,48 +68,68 @@ function initializeApp() {
             console.warn('Missing form elements:', missingElements);
         }
         
-        console.log('TWT Document Generator v4.6 Initialized');
+        console.log('TWT Document Generator v4.7 Initialized');
         
-        // Initialize filename toggle button
-        updateFilenameToggleButton();
+        // Initialize PNG filename preview
+        initializePngFilenamePreview();
     } catch (error) {
         console.error('Error initializing app:', error);
     }
 }
 
-// Toggle filename prompt setting
-function toggleFilenamePrompt() {
-    const currentSetting = localStorage.getItem('skipFilenamePrompt') === 'true';
-    const newSetting = !currentSetting;
+// Initialize PNG filename preview
+function initializePngFilenamePreview() {
+    const filenameInput = document.getElementById('pngFilename');
+    const preview = document.getElementById('pngPreview');
     
-    localStorage.setItem('skipFilenamePrompt', newSetting.toString());
-    updateFilenameToggleButton();
-    
-    const message = newSetting ? 
-        'Filename prompt disabled - PNG will use auto-generated names' : 
-        'Filename prompt enabled - You can customize PNG names';
-    
-    showToast(message, 'info');
+    if (filenameInput && preview) {
+        // Update preview when user types
+        filenameInput.addEventListener('input', function() {
+            updatePngPreview();
+        });
+        
+        // Initialize with current document data
+        updatePngPreview();
+    }
 }
 
-// Update filename toggle button
-function updateFilenameToggleButton() {
-    const skipPrompt = localStorage.getItem('skipFilenamePrompt') === 'true';
-    const btn = document.getElementById('filenameToggleBtn');
-    const text = document.getElementById('filenameToggleText');
+// Update PNG filename preview
+function updatePngPreview() {
+    const filenameInput = document.getElementById('pngFilename');
+    const preview = document.getElementById('pngPreview');
     
-    if (btn && text) {
-        if (skipPrompt) {
-            btn.className = 'btn btn-warning w-100';
-            text.textContent = 'Auto Name';
-            btn.title = 'Click to enable filename prompt';
+    if (filenameInput && preview) {
+        const customName = filenameInput.value.trim();
+        if (customName) {
+            preview.textContent = `${customName}.png`;
         } else {
-            btn.className = 'btn btn-outline-primary w-100';
-            text.textContent = 'Custom Name';
-            btn.title = 'Click to disable filename prompt';
+            // Generate auto name
+            const docType = document.getElementById('docType')?.value || 'DOCUMENT';
+            const docNo = document.getElementById('docNo')?.value || 'NO_NUMBER';
+            const date = new Date().toISOString().split('T')[0];
+            const autoName = `${docType}_${docNo}_${date}`;
+            preview.textContent = `${autoName}.png`;
         }
     }
 }
+
+// Get PNG filename from input field
+function getPngFilename() {
+    const filenameInput = document.getElementById('pngFilename');
+    const customName = filenameInput ? filenameInput.value.trim() : '';
+    
+    if (customName) {
+        return customName;
+    } else {
+        // Generate auto name
+        const docType = document.getElementById('docType')?.value || 'DOCUMENT';
+        const docNo = document.getElementById('docNo')?.value || 'NO_NUMBER';
+        const date = new Date().toISOString().split('T')[0];
+        return `${docType}_${docNo}_${date}`;
+    }
+}
+
+
 
 // Check for required dependencies
 async function checkDependencies() {
@@ -153,6 +173,17 @@ function bindEvents() {
             document.getElementById('customTypeDiv').style.display = 'none';
         }
         updateProgress(1);
+        // Update PNG filename preview
+        if (typeof updatePngPreview === 'function') {
+            updatePngPreview();
+        }
+    });
+    
+    // Document number change - update PNG preview
+    document.getElementById('docNo').addEventListener('input', function() {
+        if (typeof updatePngPreview === 'function') {
+            updatePngPreview();
+        }
     });
     
     // Bank account change - handle existing select elements
