@@ -10,6 +10,19 @@ let isBengali = false;
 let clients = JSON.parse(localStorage.getItem('twtClients') || '[]');
 let fabOpen = false;
 
+// Error handler to prevent white screen
+window.onerror = function(message, source, lineno, colno, error) {
+    console.error('JavaScript Error:', {
+        message: message,
+        source: source,
+        line: lineno,
+        column: colno,
+        error: error
+    });
+    // Don't prevent default error handling
+    return false;
+};
+
 // Initialize App
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
@@ -70,8 +83,9 @@ function initializeApp() {
         
         console.log('TWT Document Generator v4.7 Initialized');
         
-        // Initialize PNG filename preview
-        initializePngFilenamePreview();
+        // Skip PNG filename initialization for now to test basic loading
+        console.log('Skipping PNG initialization to test basic page load');
+        
     } catch (error) {
         console.error('Error initializing app:', error);
     }
@@ -80,21 +94,27 @@ function initializeApp() {
 // Initialize PNG filename preview
 function initializePngFilenamePreview() {
     try {
+        console.log('Initializing PNG filename preview...');
         const filenameInput = document.getElementById('pngFilename');
         const preview = document.getElementById('pngPreview');
         
         if (filenameInput && preview) {
+            console.log('PNG elements found, setting up listeners');
             // Update preview when user types
             filenameInput.addEventListener('input', function() {
-                updatePngPreview();
+                try {
+                    updatePngPreview();
+                } catch (e) {
+                    console.error('Error in preview update:', e);
+                }
             });
             
             // Initialize with current document data
             updatePngPreview();
         } else {
-            console.warn('PNG filename elements not found yet, will retry...');
-            // Retry after a short delay
-            setTimeout(initializePngFilenamePreview, 500);
+            console.warn('PNG filename elements not found, retrying in 2 seconds...');
+            // Retry after a longer delay
+            setTimeout(initializePngFilenamePreview, 2000);
         }
     } catch (error) {
         console.error('Error initializing PNG filename preview:', error);
