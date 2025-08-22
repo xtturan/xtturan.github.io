@@ -29,6 +29,13 @@ function initializeApp() {
             toggleDarkMode();
         }
         
+        // Check for required dependencies
+        checkDependencies().then(() => {
+            console.log('All dependencies loaded successfully');
+        }).catch(error => {
+            console.warn('Some dependencies may not be available:', error);
+        });
+        
         // Initialize products array
         if (!window.products) {
             window.products = [];
@@ -61,10 +68,42 @@ function initializeApp() {
             console.warn('Missing form elements:', missingElements);
         }
         
-        console.log('TWT Document Generator v4.3 Initialized');
+        console.log('TWT Document Generator v4.4 Initialized');
     } catch (error) {
         console.error('Error initializing app:', error);
     }
+}
+
+// Check for required dependencies
+async function checkDependencies() {
+    console.log('Checking dependencies...');
+    
+    const requiredLibraries = [
+        { name: 'html2canvas', check: () => typeof html2canvas !== 'undefined' },
+        { name: 'QRCode', check: () => typeof QRCode !== 'undefined' },
+        { name: 'Bootstrap', check: () => typeof bootstrap !== 'undefined' }
+    ];
+    
+    for (const lib of requiredLibraries) {
+        let retries = 0;
+        while (!lib.check() && retries < 20) { // Increased retries for GitHub Pages
+            console.log(`Waiting for ${lib.name} to load... attempt ${retries + 1}`);
+            await new Promise(resolve => setTimeout(resolve, 250));
+            retries++;
+        }
+        
+        if (lib.check()) {
+            console.log(`✓ ${lib.name} loaded successfully`);
+        } else {
+            console.warn(`⚠ ${lib.name} failed to load after ${retries} attempts`);
+            if (lib.name === 'html2canvas') {
+                // Critical dependency
+                throw new Error(`${lib.name} is required but failed to load`);
+            }
+        }
+    }
+    
+    console.log('Dependency check completed');
 }
 
 // Bind Event Listeners

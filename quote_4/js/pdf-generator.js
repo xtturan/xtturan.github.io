@@ -34,12 +34,35 @@ class TWTPDFGenerator {
     async generatePNG() {
         try {
             console.log('Starting PNG generation...');
+            
+            // Wait for DOM to be fully ready
+            if (document.readyState !== 'complete') {
+                console.log('Waiting for DOM to be ready...');
+                await new Promise(resolve => {
+                    if (document.readyState === 'complete') {
+                        resolve();
+                    } else {
+                        window.addEventListener('load', resolve, { once: true });
+                    }
+                });
+            }
+            
             this.showLoading();
             
-            // Check if required libraries are loaded
-            if (typeof html2canvas === 'undefined') {
-                throw new Error('html2canvas library is not loaded');
+            // Check if required libraries are loaded with retry
+            let retries = 0;
+            while (typeof html2canvas === 'undefined' && retries < 10) {
+                console.log(`Waiting for html2canvas to load... attempt ${retries + 1}`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                retries++;
             }
+            
+            if (typeof html2canvas === 'undefined') {
+                throw new Error('html2canvas library failed to load after multiple attempts');
+            }
+            
+            // Wait a bit more for all form elements to be ready
+            await new Promise(resolve => setTimeout(resolve, 500));
             
             console.log('Collecting form data...');
             const data = this.collectFormData();
@@ -62,8 +85,8 @@ class TWTPDFGenerator {
             document.body.appendChild(tempDiv);
             console.log('Temporary div added to document');
             
-            // Wait for content to render and images to load
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Wait longer for content to render and images to load on GitHub Pages
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
             // Calculate dynamic height based on content
             const contentHeight = Math.max(tempDiv.scrollHeight + 100, 800); // Minimum height
@@ -81,11 +104,11 @@ class TWTPDFGenerator {
                 scrollX: 0,
                 scrollY: 0,
                 logging: false,
-                imageTimeout: 15000,
+                imageTimeout: 30000, // Increased timeout for GitHub Pages
                 onclone: function(clonedDoc) {
                     console.log('Document cloned for canvas rendering');
                     // Remove any problematic elements in the cloned document
-                    const problemElements = clonedDoc.querySelectorAll('script, link[rel="stylesheet"], style');
+                    const problemElements = clonedDoc.querySelectorAll('script, link[rel="stylesheet"]');
                     problemElements.forEach(el => el.remove());
                 },
                 ignoreElements: function(element) {
@@ -141,7 +164,9 @@ class TWTPDFGenerator {
             
             let errorMessage = 'PNG generation failed: ';
             if (error.message.includes('Cannot read properties of null')) {
-                errorMessage += 'Missing form elements. Please ensure all fields are properly loaded.';
+                errorMessage += 'Page is still loading. Please wait a moment and try again.';
+            } else if (error.message.includes('html2canvas')) {
+                errorMessage += 'Required libraries are still loading. Please refresh and try again.';
             } else {
                 errorMessage += error.message;
             }
@@ -1403,30 +1428,85 @@ function generatePDF() {
 }
 
 function generatePNG() {
-    try {
-        // Check if the PDF generator is properly initialized
-        if (typeof twtPDFGenerator === 'undefined') {
-            throw new Error('PDF generator not initialized');
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log('Starting PNG generation from global function...');
+            
+            // First check if DOM is ready
+            if (document.readyState !== 'complete') {
+                console.log('Waiting for DOM to be ready...');
+                await new Promise(resolve => {
+                    if (document.readyState === 'complete') {
+                        resolve();
+                    } else {
+                        window.addEventListener('load', resolve, { once: true });
+                    }
+                });
+            }
+            
+            // Wait for dependencies to load (especially for GitHub Pages)
+            let html2canvasRetries = 0;
+            while (typeof html2canvas === 'undefined' && html2canvasRetries < 30) {
+                console.log(`Waiting for html2canvas... attempt ${html2canvasRetries + 1}`);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                html2canvasRetries++;
+            }
+            
+            if (typeof html2canvas === 'undefined') {
+                throw new Error('html2canvas library failed to load. Please refresh the page and try again.');
+            }
+            
+            // Check if the PDF generator is properly initialized
+            if (typeof twtPDFGenerator === 'undefined') {
+                console.log('PDF generator not initialized, creating new instance...');
+                
+                // Wait a bit more for the PDFGenerator class to be available
+                let generatorRetries = 0;
+                while (typeof PDFGenerator === 'undefined' && generatorRetries < 10) {
+                    console.log(`Waiting for PDFGenerator class... attempt ${generatorRetries + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    generatorRetries++;
+                }
+                
+                if (typeof PDFGenerator !== 'undefined') {
+                    window.twtPDFGenerator = new PDFGenerator();
+                } else {
+                    throw new Error('PDFGenerator class not available');
+                }
+            }
+            
+            // Ensure products array exists
+            if (!window.products) {
+                window.products = [];
+            }
+            
+            console.log('All dependencies ready, starting PNG generation...');
+            const result = await twtPDFGenerator.generatePNG();
+            resolve(result);
+            
+        } catch (error) {
+            console.error('Error in generatePNG wrapper:', error);
+            
+            // Show user-friendly error message
+            let errorMessage = 'PNG generation failed. ';
+            
+            if (error.message.includes('html2canvas')) {
+                errorMessage += 'Required libraries are still loading. Please wait a moment and try again.';
+            } else if (error.message.includes('Cannot read properties of null')) {
+                errorMessage += 'Page is still loading. Please wait a moment and try again.';
+            } else {
+                errorMessage += 'Please refresh the page and try again.';
+            }
+            
+            if (typeof showToast === 'function') {
+                showToast(errorMessage, 'error');
+            } else {
+                alert(errorMessage + '\nError: ' + error.message);
+            }
+            
+            reject(error);
         }
-        
-        // Ensure products array exists
-        if (!window.products) {
-            window.products = [];
-        }
-        
-        return twtPDFGenerator.generatePNG();
-    } catch (error) {
-        console.error('Error in generatePNG wrapper:', error);
-        
-        // Show user-friendly error message
-        if (typeof showToast === 'function') {
-            showToast('PNG generation failed. Please refresh the page and try again.', 'error');
-        } else {
-            alert('PNG generation failed. Please refresh the page and try again.\nError: ' + error.message);
-        }
-        
-        return false;
-    }
+    });
 }
 
 // Fallback PNG generation function
