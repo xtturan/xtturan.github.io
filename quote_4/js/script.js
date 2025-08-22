@@ -20,24 +20,51 @@ document.addEventListener('DOMContentLoaded', function() {
     checkOrientation();
 });
 
-// Initialize Application
+// Initialize App
 function initializeApp() {
-    // Check for saved theme
-    const savedTheme = localStorage.getItem('twtTheme');
-    if (savedTheme === 'dark') {
-        toggleDarkMode();
+    try {
+        // Check for saved theme
+        const savedTheme = localStorage.getItem('twtTheme');
+        if (savedTheme === 'dark') {
+            toggleDarkMode();
+        }
+        
+        // Initialize products array
+        if (!window.products) {
+            window.products = [];
+            products = [];
+        }
+        
+        // Auto-save functionality
+        setInterval(autoSave, 30000); // Auto-save every 30 seconds
+        
+        // Add swipe gestures for mobile
+        addSwipeGestures();
+        
+        // Add pull-to-refresh
+        addPullToRefresh();
+        
+        // Ensure all required elements exist
+        const requiredElements = [
+            'docType', 'docNo', 'docDate', 'clientName', 'clientAddress',
+            'clientPhone', 'clientEmail', 'currency', 'subtotal', 'totalAmount'
+        ];
+        
+        const missingElements = [];
+        requiredElements.forEach(id => {
+            if (!document.getElementById(id)) {
+                missingElements.push(id);
+            }
+        });
+        
+        if (missingElements.length > 0) {
+            console.warn('Missing form elements:', missingElements);
+        }
+        
+        console.log('TWT Document Generator v4.3 Initialized');
+    } catch (error) {
+        console.error('Error initializing app:', error);
     }
-    
-    // Auto-save functionality
-    setInterval(autoSave, 30000); // Auto-save every 30 seconds
-    
-    // Add swipe gestures for mobile
-    addSwipeGestures();
-    
-    // Add pull-to-refresh
-    addPullToRefresh();
-    
-    console.log('TWT Document Generator Initialized');
 }
 
 // Bind Event Listeners
@@ -596,15 +623,32 @@ function loadDraft() {
 
 function collectFormData() {
     const getValue = (id, defaultVal = '') => {
-        const element = document.getElementById(id);
-        if (!element) return defaultVal === '' ? 'N/A' : defaultVal;
-        return element.value ? element.value : (defaultVal === '' ? 'N/A' : defaultVal);
+        try {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.warn(`Element with ID '${id}' not found, using default value: ${defaultVal}`);
+                return defaultVal === '' ? 'N/A' : defaultVal;
+            }
+            const value = element.value;
+            return (value !== null && value !== undefined && value.trim() !== '') ? value : (defaultVal === '' ? 'N/A' : defaultVal);
+        } catch (error) {
+            console.error(`Error getting value for element '${id}':`, error);
+            return defaultVal === '' ? 'N/A' : defaultVal;
+        }
     };
     
     const getCheckboxValue = (id, defaultVal = false) => {
-        const element = document.getElementById(id);
-        if (!element) return defaultVal;
-        return element.checked || defaultVal;
+        try {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.warn(`Checkbox with ID '${id}' not found, using default value: ${defaultVal}`);
+                return defaultVal;
+            }
+            return element.checked || defaultVal;
+        } catch (error) {
+            console.error(`Error getting checkbox value for element '${id}':`, error);
+            return defaultVal;
+        }
     };
     
     return {
@@ -635,7 +679,7 @@ function collectFormData() {
         validityPeriod: getValue('validityPeriod'),
         additionalTerms: getValue('additionalTerms'),
         includeStandardTerms: getCheckboxValue('includeStandardTerms'),
-        products: products
+        products: products || []
     };
 }
 

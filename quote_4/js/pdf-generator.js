@@ -36,20 +36,37 @@ class TWTPDFGenerator {
             console.log('Starting PNG generation...');
             this.showLoading();
             
+            // Check if required libraries are loaded
+            if (typeof html2canvas === 'undefined') {
+                throw new Error('html2canvas library is not loaded');
+            }
+            
             console.log('Collecting form data...');
             const data = this.collectFormData();
-            console.log('Form data collected:', data);
+            console.log('Form data collected successfully:', data);
+            
+            // Validate essential data
+            if (!data.docType || !data.docNo) {
+                console.warn('Missing essential document data, using defaults');
+            }
             
             // Create a temporary div with document content
             console.log('Creating printable div...');
             const tempDiv = await this.createPrintableDiv(data);
-            document.body.appendChild(tempDiv);
             
-            // Wait for content to render
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Ensure tempDiv was created successfully
+            if (!tempDiv) {
+                throw new Error('Failed to create printable content');
+            }
+            
+            document.body.appendChild(tempDiv);
+            console.log('Temporary div added to document');
+            
+            // Wait for content to render and images to load
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
             // Calculate dynamic height based on content
-            const contentHeight = tempDiv.scrollHeight + 100; // Add padding
+            const contentHeight = Math.max(tempDiv.scrollHeight + 100, 800); // Minimum height
             console.log('Content height calculated:', contentHeight);
             
             // Use html2canvas to convert to image
@@ -65,10 +82,16 @@ class TWTPDFGenerator {
                 scrollY: 0,
                 logging: false,
                 imageTimeout: 15000,
+                onclone: function(clonedDoc) {
+                    console.log('Document cloned for canvas rendering');
+                    // Remove any problematic elements in the cloned document
+                    const problemElements = clonedDoc.querySelectorAll('script, link[rel="stylesheet"], style');
+                    problemElements.forEach(el => el.remove());
+                },
                 ignoreElements: function(element) {
-                    // Skip problematic images that might cause taint
-                    if (element.tagName === 'IMG' && element.src.includes('default-signature.png')) {
-                        return false; // Don't ignore, but handle specially
+                    // Skip problematic elements
+                    if (element.tagName === 'SCRIPT' || element.tagName === 'LINK') {
+                        return true;
                     }
                     return false;
                 }
@@ -77,23 +100,53 @@ class TWTPDFGenerator {
             console.log('Canvas created successfully');
             
             // Remove temporary div
-            document.body.removeChild(tempDiv);
+            if (tempDiv && tempDiv.parentNode) {
+                document.body.removeChild(tempDiv);
+                console.log('Temporary div removed');
+            }
             
             // Convert to PNG and download
             const imgData = canvas.toDataURL('image/png', 1.0);
+            
+            if (!imgData || imgData === 'data:,') {
+                throw new Error('Failed to generate image data');
+            }
+            
             const link = document.createElement('a');
             link.download = `${this.getDocumentFileName(data)}.png`;
             link.href = imgData;
+            
+            // Trigger download
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
             
             this.hideLoading();
-            this.showToast('PNG generated successfully', 'success');
+            this.showToast('PNG generated successfully! Download should start automatically.', 'success');
             
             return true;
         } catch (error) {
             console.error('PNG generation failed:', error);
+            console.error('Error stack:', error.stack);
+            
+            // Clean up temporary elements
+            const tempDivs = document.querySelectorAll('[style*="position: fixed"][style*="top: -9999px"]');
+            tempDivs.forEach(div => {
+                if (div.parentNode) {
+                    div.parentNode.removeChild(div);
+                }
+            });
+            
             this.hideLoading();
-            this.showToast('PNG generation failed: ' + error.message, 'error');
+            
+            let errorMessage = 'PNG generation failed: ';
+            if (error.message.includes('Cannot read properties of null')) {
+                errorMessage += 'Missing form elements. Please ensure all fields are properly loaded.';
+            } else {
+                errorMessage += error.message;
+            }
+            
+            this.showToast(errorMessage, 'error');
             return false;
         }
     }
@@ -1165,18 +1218,37 @@ class TWTPDFGenerator {
     // Collect form data - safely handle null elements
     collectFormData() {
         const getValue = (id, defaultVal = '') => {
-            const element = document.getElementById(id);
-            if (!element) return defaultVal;
-            return element.value || defaultVal;
+            try {
+                const element = document.getElementById(id);
+                if (!element) {
+                    console.warn(`Element with ID '${id}' not found, using default value: ${defaultVal}`);
+                    return defaultVal;
+                }
+                const value = element.value;
+                return (value !== null && value !== undefined && value.trim() !== '') ? value : defaultVal;
+            } catch (error) {
+                console.error(`Error getting value for element '${id}':`, error);
+                return defaultVal;
+            }
         };
         
         const getCheckboxValue = (id, defaultVal = false) => {
-            const element = document.getElementById(id);
-            if (!element) return defaultVal;
-            return element.checked || defaultVal;
+            try {
+                const element = document.getElementById(id);
+                if (!element) {
+                    console.warn(`Checkbox with ID '${id}' not found, using default value: ${defaultVal}`);
+                    return defaultVal;
+                }
+                return element.checked || defaultVal;
+            } catch (error) {
+                console.error(`Error getting checkbox value for element '${id}':`, error);
+                return defaultVal;
+            }
         };
         
-        return {
+        console.log('Starting form data collection...');
+        
+        const formData = {
             docType: getValue('docType', 'DOCUMENT'),
             docNo: getValue('docNo', 'DOC-' + Date.now()),
             docDate: getValue('docDate', new Date().toISOString().split('T')[0]),
@@ -1224,6 +1296,9 @@ class TWTPDFGenerator {
             includeStandardTerms: getCheckboxValue('includeStandardTerms', false),
             products: window.products || []
         };
+        
+        console.log('Form data collection completed successfully:', formData);
+        return formData;
     }
     
     validateData(data) {
@@ -1328,7 +1403,60 @@ function generatePDF() {
 }
 
 function generatePNG() {
-    return twtPDFGenerator.generatePNG();
+    try {
+        // Check if the PDF generator is properly initialized
+        if (typeof twtPDFGenerator === 'undefined') {
+            throw new Error('PDF generator not initialized');
+        }
+        
+        // Ensure products array exists
+        if (!window.products) {
+            window.products = [];
+        }
+        
+        return twtPDFGenerator.generatePNG();
+    } catch (error) {
+        console.error('Error in generatePNG wrapper:', error);
+        
+        // Show user-friendly error message
+        if (typeof showToast === 'function') {
+            showToast('PNG generation failed. Please refresh the page and try again.', 'error');
+        } else {
+            alert('PNG generation failed. Please refresh the page and try again.\nError: ' + error.message);
+        }
+        
+        return false;
+    }
+}
+
+// Fallback PNG generation function
+function generatePNGFallback() {
+    try {
+        console.log('Using fallback PNG generation method...');
+        
+        // Basic form data collection with maximum safety
+        const getValueSafe = (id) => {
+            try {
+                const el = document.getElementById(id);
+                return el ? (el.value || 'N/A') : 'N/A';
+            } catch {
+                return 'N/A';
+            }
+        };
+        
+        const basicData = {
+            docType: getValueSafe('docType'),
+            docNo: getValueSafe('docNo'),
+            clientName: getValueSafe('clientName'),
+            totalAmount: getValueSafe('totalAmount') || '0.00'
+        };
+        
+        alert(`Document Summary:\nType: ${basicData.docType}\nNumber: ${basicData.docNo}\nClient: ${basicData.clientName}\nTotal: ${basicData.totalAmount}\n\nFull PNG generation is temporarily unavailable. Please try refreshing the page.`);
+        
+    } catch (error) {
+        console.error('Even fallback failed:', error);
+        alert('Unable to generate document. Please refresh the page and try again.');
+    }
 }
 
 // Export for use in other modules
