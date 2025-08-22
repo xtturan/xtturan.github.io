@@ -27,7 +27,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item d-flex align-items-center">
-                                        <span class="navbar-text me-3">v4.5</span>
+                                        <span class="navbar-text me-3">v4.6</span>
                         <button class="btn btn-outline-light btn-sm" onclick="toggleDarkMode()">
                             <i class="fas fa-moon"></i> Dark Mode
                         </button>
@@ -521,9 +521,18 @@
                     <div class="card-body">
                         <div class="row g-2">
                             <div class="col-12">
-                                <button class="btn btn-success w-100" onclick="generatePNG()">
-                                    <i class="fas fa-image"></i> Generate Invoice (PNG)
-                                </button>
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <button class="btn btn-success w-100" onclick="generatePNG()">
+                                        <i class="fas fa-image"></i> Generate Invoice (PNG)
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-outline-primary w-100" onclick="toggleFilenamePrompt()" id="filenameToggleBtn" title="Toggle filename prompt">
+                                        <i class="fas fa-edit"></i> <span id="filenameToggleText">Auto Name</span>
+                                    </button>
+                                </div>
+                            </div>
                             </div>
                         </div>
                     </div>

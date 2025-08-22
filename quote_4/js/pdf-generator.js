@@ -137,8 +137,18 @@ class TWTPDFGenerator {
                 throw new Error('Failed to generate image data');
             }
             
-            // Get filename from user
-            const filename = await this.promptForFilename(data);
+            // Get filename from user (with fallback option)
+            let filename;
+            
+            // Check if we should skip the filename prompt
+            const skipFilenamePrompt = localStorage.getItem('skipFilenamePrompt') === 'true';
+            
+            if (skipFilenamePrompt) {
+                filename = this.getDocumentFileName(data);
+                console.log('Skipping filename prompt, using default:', filename);
+            } else {
+                filename = await this.promptForFilename(data);
+            }
             
             // If user cancelled, don't download
             if (filename === null) {
@@ -1362,94 +1372,174 @@ class TWTPDFGenerator {
     // Prompt user for filename
     async promptForFilename(data) {
         return new Promise((resolve) => {
-            // Create modal for filename input
-            const modal = document.createElement('div');
-            modal.className = 'modal fade';
-            modal.id = 'filenameModal';
-            modal.setAttribute('data-bs-backdrop', 'static');
-            modal.innerHTML = `
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">
-                                <i class="fas fa-edit me-2"></i>Set PNG Filename
-                            </h5>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="pngFilename" class="form-label">Enter filename (without .png extension):</label>
-                                <input type="text" class="form-control" id="pngFilename" 
-                                       value="${this.getDocumentFileName(data)}" 
-                                       placeholder="Enter filename">
-                                <div class="form-text">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    The file will be saved as: <strong><span id="previewFilename">${this.getDocumentFileName(data)}.png</span></strong>
+            try {
+                // Remove any existing modals first
+                const existingModals = document.querySelectorAll('#filenameModal');
+                existingModals.forEach(modal => modal.remove());
+                
+                // Create modal for filename input
+                const modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.id = 'filenameModal';
+                modal.setAttribute('data-bs-backdrop', 'static');
+                modal.setAttribute('data-bs-keyboard', 'false');
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-edit me-2"></i>Set PNG Filename
+                                </h5>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="pngFilename" class="form-label">Enter filename (without .png extension):</label>
+                                    <input type="text" class="form-control" id="pngFilename" 
+                                           value="${this.getDocumentFileName(data)}" 
+                                           placeholder="Enter filename"
+                                           autocomplete="off">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        The file will be saved as: <strong><span id="previewFilename">${this.getDocumentFileName(data)}.png</span></strong>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" id="cancelFilename">
-                                <i class="fas fa-times me-2"></i>Cancel
-                            </button>
-                            <button type="button" class="btn btn-primary" id="confirmFilename">
-                                <i class="fas fa-download me-2"></i>Download PNG
-                            </button>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" id="cancelFilename">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="button" class="btn btn-primary" id="confirmFilename">
+                                    <i class="fas fa-download me-2"></i>Download PNG
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // Initialize modal
-            const modalInstance = new bootstrap.Modal(modal);
-            modalInstance.show();
-            
-            const filenameInput = document.getElementById('pngFilename');
-            const previewFilename = document.getElementById('previewFilename');
-            const confirmBtn = document.getElementById('confirmFilename');
-            const cancelBtn = document.getElementById('cancelFilename');
-            
-            // Update preview as user types
-            filenameInput.addEventListener('input', function() {
-                const filename = this.value.trim() || 'document';
-                previewFilename.textContent = `${filename}.png`;
-            });
-            
-            // Focus on input and select text
-            setTimeout(() => {
-                filenameInput.focus();
-                filenameInput.select();
-            }, 300);
-            
-            // Handle Enter key
-            filenameInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    confirmBtn.click();
-                }
-            });
-            
-            // Handle confirm
-            confirmBtn.addEventListener('click', function() {
-                const filename = filenameInput.value.trim() || 'document';
-                modalInstance.hide();
-                modal.remove();
-                resolve(filename);
-            });
-            
-            // Handle cancel
-            cancelBtn.addEventListener('click', function() {
-                modalInstance.hide();
-                modal.remove();
-                resolve(null); // Return null to indicate cancellation
-            });
-            
-            // Handle modal close
-            modal.addEventListener('hidden.bs.modal', function() {
-                if (modal.parentNode) {
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Set a timeout to auto-resolve if modal gets stuck
+                const modalTimeout = setTimeout(() => {
+                    console.warn('Modal timeout - auto-resolving with default filename');
+                    if (modal.parentNode) {
+                        modal.remove();
+                    }
+                    resolve(this.getDocumentFileName(data));
+                }, 30000); // 30 second timeout
+                
+                // Initialize modal with error handling
+                let modalInstance;
+                try {
+                    modalInstance = new bootstrap.Modal(modal, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    modalInstance.show();
+                } catch (error) {
+                    console.error('Bootstrap modal error:', error);
+                    // Fallback to simple prompt if Bootstrap modal fails
                     modal.remove();
+                    const filename = prompt('Enter PNG filename (without .png extension):', this.getDocumentFileName(data));
+                    resolve(filename);
+                    return;
                 }
-            });
+                
+                const filenameInput = document.getElementById('pngFilename');
+                const previewFilename = document.getElementById('previewFilename');
+                const confirmBtn = document.getElementById('confirmFilename');
+                const cancelBtn = document.getElementById('cancelFilename');
+                
+                // Update preview as user types
+                filenameInput.addEventListener('input', function() {
+                    const filename = this.value.trim() || 'document';
+                    previewFilename.textContent = `${filename}.png`;
+                });
+                
+                // Focus on input and select text
+                setTimeout(() => {
+                    filenameInput.focus();
+                    filenameInput.select();
+                }, 500);
+                
+                // Handle Enter key
+                filenameInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        confirmBtn.click();
+                    }
+                });
+                
+                // Handle Escape key
+                document.addEventListener('keydown', function escapeHandler(e) {
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        document.removeEventListener('keydown', escapeHandler);
+                        cancelBtn.click();
+                    }
+                });
+                
+                // Handle confirm
+                confirmBtn.addEventListener('click', function() {
+                    try {
+                        clearTimeout(modalTimeout);
+                        const filename = filenameInput.value.trim() || 'document';
+                        modalInstance.hide();
+                        
+                        // Clean up modal after animation
+                        setTimeout(() => {
+                            if (modal.parentNode) {
+                                modal.remove();
+                            }
+                        }, 300);
+                        
+                        resolve(filename);
+                    } catch (error) {
+                        console.error('Error confirming filename:', error);
+                        clearTimeout(modalTimeout);
+                        modal.remove();
+                        resolve('document');
+                    }
+                });
+                
+                // Handle cancel
+                cancelBtn.addEventListener('click', function() {
+                    try {
+                        clearTimeout(modalTimeout);
+                        modalInstance.hide();
+                        
+                        // Clean up modal after animation
+                        setTimeout(() => {
+                            if (modal.parentNode) {
+                                modal.remove();
+                            }
+                        }, 300);
+                        
+                        resolve(null); // Return null to indicate cancellation
+                    } catch (error) {
+                        console.error('Error cancelling filename:', error);
+                        clearTimeout(modalTimeout);
+                        modal.remove();
+                        resolve(null);
+                    }
+                });
+                
+                // Handle modal close/hidden events
+                modal.addEventListener('hidden.bs.modal', function() {
+                    try {
+                        if (modal.parentNode) {
+                            modal.remove();
+                        }
+                    } catch (error) {
+                        console.error('Error cleaning up modal:', error);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error creating filename modal:', error);
+                // Fallback to simple prompt
+                const filename = prompt('Enter PNG filename (without .png extension):', this.getDocumentFileName(data));
+                resolve(filename);
+            }
         });
     }
     

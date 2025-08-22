@@ -68,9 +68,46 @@ function initializeApp() {
             console.warn('Missing form elements:', missingElements);
         }
         
-        console.log('TWT Document Generator v4.5 Initialized');
+        console.log('TWT Document Generator v4.6 Initialized');
+        
+        // Initialize filename toggle button
+        updateFilenameToggleButton();
     } catch (error) {
         console.error('Error initializing app:', error);
+    }
+}
+
+// Toggle filename prompt setting
+function toggleFilenamePrompt() {
+    const currentSetting = localStorage.getItem('skipFilenamePrompt') === 'true';
+    const newSetting = !currentSetting;
+    
+    localStorage.setItem('skipFilenamePrompt', newSetting.toString());
+    updateFilenameToggleButton();
+    
+    const message = newSetting ? 
+        'Filename prompt disabled - PNG will use auto-generated names' : 
+        'Filename prompt enabled - You can customize PNG names';
+    
+    showToast(message, 'info');
+}
+
+// Update filename toggle button
+function updateFilenameToggleButton() {
+    const skipPrompt = localStorage.getItem('skipFilenamePrompt') === 'true';
+    const btn = document.getElementById('filenameToggleBtn');
+    const text = document.getElementById('filenameToggleText');
+    
+    if (btn && text) {
+        if (skipPrompt) {
+            btn.className = 'btn btn-warning w-100';
+            text.textContent = 'Auto Name';
+            btn.title = 'Click to enable filename prompt';
+        } else {
+            btn.className = 'btn btn-outline-primary w-100';
+            text.textContent = 'Custom Name';
+            btn.title = 'Click to disable filename prompt';
+        }
     }
 }
 
