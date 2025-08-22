@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test PNG Generation</title>
+</head>
+<body>
+    <h1>Test PNG Generation</h1>
+    
+    <div>
+        <label>Document Type:</label>
+        <select id="docType">
+            <option value="QUOTATION">QUOTATION</option>
+            <option value="COMMERCIAL_INVOICE">COMMERCIAL INVOICE</option>
+        </select>
+    </div>
+    
+    <div>
+        <label>Document No:</label>
+        <input type="text" id="docNo" value="TEST-001">
+    </div>
+    
+    <div>
+        <label>Date:</label>
+        <input type="date" id="docDate" value="2025-08-22">
+    </div>
+    
+    <div>
+        <label>Client Name:</label>
+        <input type="text" id="clientName" value="Test Client">
+    </div>
+    
+    <div>
+        <label>Client Address:</label>
+        <textarea id="clientAddress">123 Test Street</textarea>
+    </div>
+    
+    <div>
+        <label>Client Phone:</label>
+        <input type="text" id="clientPhone" value="+880123456789">
+    </div>
+    
+    <div>
+        <label>Client Email:</label>
+        <input type="email" id="clientEmail" value="test@example.com">
+    </div>
+    
+    <!-- Hidden fields that might cause issues -->
+    <input type="hidden" id="fromCountry" value="">
+    <input type="hidden" id="toCountry" value="">
+    <input type="hidden" id="loadingPort" value="">
+    <input type="hidden" id="dischargePort" value="">
+    <input type="hidden" id="lcNumber" value="">
+    <input type="hidden" id="blNumber" value="">
+    <input type="hidden" id="hsCode" value="">
+    <input type="hidden" id="customsDecl" value="">
+    <input type="hidden" id="invoiceNumber" value="">
+    <input type="hidden" id="packingListNo" value="">
+    <input type="hidden" id="containerNo" value="">
+    <input type="hidden" id="sealNo" value="">
+    <input type="hidden" id="vesselName" value="">
+    <input type="hidden" id="etdEta" value="">
+    <input type="hidden" id="shippingLine" value="">
+    <input type="hidden" id="incoterms" value="">
+    <input type="hidden" id="documentType" value="COMMERCIAL_INVOICE">
+    <input type="hidden" id="receivedBy" value="">
+    <input type="hidden" id="receivedDate" value="">
+    <input type="hidden" id="currency" value="BDT">
+    <input type="hidden" id="exchangeRate" value="1.00">
+    <input type="hidden" id="bankAccount" value="default">
+    <input type="hidden" id="customBank" value="">
+    <input type="hidden" id="subtotal" value="1000.00">
+    <input type="hidden" id="discount" value="0">
+    <input type="hidden" id="shipping" value="0.00">
+    <input type="hidden" id="tax" value="0">
+    <input type="hidden" id="totalAmount" value="1000.00">
+    <input type="hidden" id="amountWords" value="One Thousand Taka Only">
+    <input type="hidden" id="advance" value="0.00">
+    <input type="hidden" id="balance" value="1000.00">
+    <input type="hidden" id="paymentTerms" value="">
+    <input type="hidden" id="deliveryTerms" value="">
+    <input type="hidden" id="validityPeriod" value="">
+    <input type="hidden" id="additionalTerms" value="">
+    <input type="checkbox" id="includeStandardTerms" checked style="display: none;">
+    
+    <button onclick="testGeneratePNG()">Generate Test PNG</button>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Initialize global products array
+        window.products = [
+            {
+                id: 1,
+                name: "Test Product 1",
+                description: "Test Description 1",
+                model: "MODEL-001",
+                quantity: 2,
+                unit: "PCS",
+                weight: "5kg",
+                specialDetails: "Blue color",
+                rate: 250.00,
+                amount: 500.00
+            },
+            {
+                id: 2,
+                name: "Test Product 2", 
+                description: "Test Description 2",
+                model: "MODEL-002",
+                quantity: 1,
+                unit: "PCS", 
+                weight: "10kg",
+                specialDetails: "Red color",
+                rate: 500.00,
+                amount: 500.00
+            }
+        ];
+        
+        function testGeneratePNG() {
+            console.log('Testing PNG generation...');
+            console.log('Products:', window.products);
+            
+            try {
+                if (typeof generatePNG === 'function') {
+                    generatePNG();
+                } else if (typeof twtPDFGenerator !== 'undefined') {
+                    twtPDFGenerator.generatePNG();
+                } else {
+                    console.error('PNG generation function not found');
+                    alert('PNG generation function not found');
+                }
+            } catch (error) {
+                console.error('Error during PNG generation:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+    <script src="js/pdf-generator.js"></script>
+</body>
+</html>

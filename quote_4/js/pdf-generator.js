@@ -33,11 +33,15 @@ class TWTPDFGenerator {
     // Generate PNG image
     async generatePNG() {
         try {
+            console.log('Starting PNG generation...');
             this.showLoading();
             
+            console.log('Collecting form data...');
             const data = this.collectFormData();
+            console.log('Form data collected:', data);
             
             // Create a temporary div with document content
+            console.log('Creating printable div...');
             const tempDiv = await this.createPrintableDiv(data);
             document.body.appendChild(tempDiv);
             
@@ -46,8 +50,10 @@ class TWTPDFGenerator {
             
             // Calculate dynamic height based on content
             const contentHeight = tempDiv.scrollHeight + 100; // Add padding
+            console.log('Content height calculated:', contentHeight);
             
             // Use html2canvas to convert to image
+            console.log('Starting html2canvas conversion...');
             const canvas = await html2canvas(tempDiv, {
                 scale: 1.2,
                 useCORS: true,
@@ -67,6 +73,8 @@ class TWTPDFGenerator {
                     return false;
                 }
             });
+            
+            console.log('Canvas created successfully');
             
             // Remove temporary div
             document.body.removeChild(tempDiv);
@@ -697,49 +705,49 @@ class TWTPDFGenerator {
                     <div>
                         <div style="color: #0066cc; font-weight: bold; margin-bottom: 8px;">📋 Document Details</div>
                         <div style="font-size: 13px; line-height: 1.5;">
-                            <div><strong>Document No:</strong> ${data.docNo}</div>
+                            <div><strong>Document No:</strong> ${data.docNo !== 'N/A' ? data.docNo : 'Not specified'}</div>
                             <div><strong>Date:</strong> ${new Date(data.docDate).toLocaleDateString()}</div>
-                            <div><strong>Type:</strong> ${data.documentType.replace('_', ' ') || 'Commercial Invoice'}</div>
-                            ${data.invoiceNumber ? `<div><strong>Invoice No:</strong> ${data.invoiceNumber}</div>` : ''}
+                            <div><strong>Type:</strong> ${(data.documentType || 'COMMERCIAL_INVOICE').replace('_', ' ')}</div>
+                            ${data.invoiceNumber && data.invoiceNumber !== 'N/A' ? `<div><strong>Invoice No:</strong> ${data.invoiceNumber}</div>` : ''}
                         </div>
                     </div>
                     <div>
                         <div style="color: #0066cc; font-weight: bold; margin-bottom: 8px;">🚢 Shipping Details</div>
                         <div style="font-size: 13px; line-height: 1.5;">
-                            ${data.fromCountry ? `<div><strong>From:</strong> ${data.fromCountry}</div>` : ''}
-                            ${data.toCountry ? `<div><strong>To:</strong> ${data.toCountry}</div>` : ''}
-                            ${data.loadingPort ? `<div><strong>Loading Port:</strong> ${data.loadingPort}</div>` : ''}
-                            ${data.dischargePort ? `<div><strong>Discharge Port:</strong> ${data.dischargePort}</div>` : ''}
-                            ${data.incoterms ? `<div><strong>Incoterms:</strong> ${data.incoterms}</div>` : ''}
+                            ${data.fromCountry && data.fromCountry !== 'N/A' ? `<div><strong>From:</strong> ${data.fromCountry}</div>` : ''}
+                            ${data.toCountry && data.toCountry !== 'N/A' ? `<div><strong>To:</strong> ${data.toCountry}</div>` : ''}
+                            ${data.loadingPort && data.loadingPort !== 'N/A' ? `<div><strong>Loading Port:</strong> ${data.loadingPort}</div>` : ''}
+                            ${data.dischargePort && data.dischargePort !== 'N/A' ? `<div><strong>Discharge Port:</strong> ${data.dischargePort}</div>` : ''}
+                            ${data.incoterms && data.incoterms !== 'N/A' ? `<div><strong>Incoterms:</strong> ${data.incoterms}</div>` : ''}
                         </div>
                     </div>
                     <div>
                         <div style="color: #0066cc; font-weight: bold; margin-bottom: 8px;">📄 Trade Documents</div>
                         <div style="font-size: 13px; line-height: 1.5;">
-                            ${data.lcNumber ? `<div><strong>L/C No:</strong> ${data.lcNumber}</div>` : ''}
-                            ${data.blNumber ? `<div><strong>B/L No:</strong> ${data.blNumber}</div>` : ''}
-                            ${data.hsCode ? `<div><strong>HS Code:</strong> ${data.hsCode}</div>` : ''}
-                            ${data.customsDecl ? `<div><strong>Customs:</strong> ${data.customsDecl}</div>` : ''}
+                            ${data.lcNumber && data.lcNumber !== 'N/A' ? `<div><strong>L/C No:</strong> ${data.lcNumber}</div>` : ''}
+                            ${data.blNumber && data.blNumber !== 'N/A' ? `<div><strong>B/L No:</strong> ${data.blNumber}</div>` : ''}
+                            ${data.hsCode && data.hsCode !== 'N/A' ? `<div><strong>HS Code:</strong> ${data.hsCode}</div>` : ''}
+                            ${data.customsDecl && data.customsDecl !== 'N/A' ? `<div><strong>Customs:</strong> ${data.customsDecl}</div>` : ''}
                         </div>
                     </div>
                 </div>
-                ${(data.vesselName || data.containerNo || data.sealNo || data.shippingLine) ? `
+                ${(data.vesselName && data.vesselName !== 'N/A') || (data.containerNo && data.containerNo !== 'N/A') || (data.sealNo && data.sealNo !== 'N/A') || (data.shippingLine && data.shippingLine !== 'N/A') ? `
                 <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,102,204,0.3);">
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                         <div>
                             <div style="color: #0066cc; font-weight: bold; margin-bottom: 8px;">🚢 Vessel Information</div>
                             <div style="font-size: 13px; line-height: 1.5;">
-                                ${data.vesselName ? `<div><strong>Vessel:</strong> ${data.vesselName}</div>` : ''}
-                                ${data.shippingLine ? `<div><strong>Shipping Line:</strong> ${data.shippingLine}</div>` : ''}
-                                ${data.etdEta ? `<div><strong>ETD/ETA:</strong> ${data.etdEta}</div>` : ''}
+                                ${data.vesselName && data.vesselName !== 'N/A' ? `<div><strong>Vessel:</strong> ${data.vesselName}</div>` : ''}
+                                ${data.shippingLine && data.shippingLine !== 'N/A' ? `<div><strong>Shipping Line:</strong> ${data.shippingLine}</div>` : ''}
+                                ${data.etdEta && data.etdEta !== 'N/A' ? `<div><strong>ETD/ETA:</strong> ${data.etdEta}</div>` : ''}
                             </div>
                         </div>
                         <div>
                             <div style="color: #0066cc; font-weight: bold; margin-bottom: 8px;">📦 Container Details</div>
                             <div style="font-size: 13px; line-height: 1.5;">
-                                ${data.containerNo ? `<div><strong>Container:</strong> ${data.containerNo}</div>` : ''}
-                                ${data.sealNo ? `<div><strong>Seal No:</strong> ${data.sealNo}</div>` : ''}
-                                ${data.packingListNo ? `<div><strong>Packing List:</strong> ${data.packingListNo}</div>` : ''}
+                                ${data.containerNo && data.containerNo !== 'N/A' ? `<div><strong>Container:</strong> ${data.containerNo}</div>` : ''}
+                                ${data.sealNo && data.sealNo !== 'N/A' ? `<div><strong>Seal No:</strong> ${data.sealNo}</div>` : ''}
+                                ${data.packingListNo && data.packingListNo !== 'N/A' ? `<div><strong>Packing List:</strong> ${data.packingListNo}</div>` : ''}
                             </div>
                         </div>
                         <div>
@@ -757,10 +765,10 @@ class TWTPDFGenerator {
             <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%); padding: 20px; margin-bottom: 25px; border-radius: 10px; border-left: 5px solid #28a745;">
                 <h3 style="color: #28a745; margin: 0 0 15px 0; font-size: 18px;">👤 BILL TO:</h3>
                 <div style="line-height: 1.6; font-size: 14px;">
-                    <div style="font-weight: bold; font-size: 16px; color: #333; margin-bottom: 8px;">${data.clientName}</div>
-                    <div style="color: #555; margin-bottom: 8px;">${data.clientAddress.replace(/\n/g, '<br>')}</div>
-                    ${data.clientPhone ? `<div style="color: #666;"><strong>📞 Phone:</strong> ${data.clientPhone}</div>` : ''}
-                    ${data.clientEmail ? `<div style="color: #666;"><strong>✉️ Email:</strong> ${data.clientEmail}</div>` : ''}
+                    <div style="font-weight: bold; font-size: 16px; color: #333; margin-bottom: 8px;">${data.clientName !== 'N/A' ? data.clientName : 'Client Name Not Provided'}</div>
+                    <div style="color: #555; margin-bottom: 8px;">${data.clientAddress !== 'N/A' ? data.clientAddress.replace(/\n/g, '<br>') : 'Address Not Provided'}</div>
+                    ${data.clientPhone && data.clientPhone !== 'N/A' ? `<div style="color: #666;"><strong>📞 Phone:</strong> ${data.clientPhone}</div>` : ''}
+                    ${data.clientEmail && data.clientEmail !== 'N/A' ? `<div style="color: #666;"><strong>✉️ Email:</strong> ${data.clientEmail}</div>` : ''}
                 </div>
             </div>
             
@@ -775,7 +783,7 @@ class TWTPDFGenerator {
                 </div>
             </div>
             
-            ${data.amountWords ? `
+            ${data.amountWords && data.amountWords !== 'N/A' ? `
                 <div style="background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); padding: 15px; margin-top: 25px; border-radius: 10px; border-left: 5px solid #ffc107;">
                     <div style="color: #e65100; font-weight: bold; margin-bottom: 8px;">💰 Amount in Words:</div>
                     <div style="font-style: italic; color: #333; font-size: 14px;">${data.amountWords}</div>
@@ -798,12 +806,12 @@ class TWTPDFGenerator {
                 <div style="text-align: center;">
                     <p style="margin: 0 0 20px 0; color: #666; font-weight: bold;">Received by:</p>
                     <div style="margin: 0 0 10px 0; height: 60px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; background: #fafafa;">
-                        <span style="color: #999; font-size: 12px;">${data.receivedBy || 'Signature Required'}</span>
+                        <span style="color: #999; font-size: 12px;">${data.receivedBy && data.receivedBy !== 'N/A' ? data.receivedBy : 'Signature Required'}</span>
                     </div>
                     <div style="border-top: 2px solid #28a745; width: 200px; padding-top: 8px; color: #28a745; font-weight: bold; margin: 0 auto;">
-                        ${data.receivedBy || 'Client Representative'}
+                        ${data.receivedBy && data.receivedBy !== 'N/A' ? data.receivedBy : 'Client Representative'}
                     </div>
-                    <div style="font-size: 12px; color: #888; margin-top: 5px;">Date: ${data.receivedDate || '___________'}</div>
+                    <div style="font-size: 12px; color: #888; margin-top: 5px;">Date: ${data.receivedDate && data.receivedDate !== 'N/A' ? data.receivedDate : '___________'}</div>
                 </div>
             </div>
             
@@ -840,15 +848,23 @@ class TWTPDFGenerator {
         `;
         
         products.forEach((product, index) => {
+            const displayName = product.name || 'N/A';
+            const displayDescription = product.description || 'N/A';
+            const displayWeight = product.weight || 'N/A';
+            const displayQuantity = product.quantity || 1;
+            const displayUnit = product.unit || 'PCS';
+            const displayRate = (product.rate || 0).toFixed(2);
+            const displayAmount = (product.amount || 0).toFixed(2);
+            
             html += `
                 <tr style="background: ${index % 2 === 0 ? 'white' : '#f8f9fa'};">
                     <td style="border: 1px solid #ddd; padding: 6px;">${index + 1}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px;">${product.description}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center;">${product.quantity}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center;">${product.unit}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center;">${product.weight || ''}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; text-align: right;">${product.rate.toFixed(2)}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; text-align: right;">${product.amount.toFixed(2)}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px;">${displayDescription}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center;">${displayQuantity}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center;">${displayUnit}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center;">${displayWeight}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: right;">${displayRate}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: right;">${displayAmount}</td>
                 </tr>
             `;
         });
@@ -895,18 +911,29 @@ class TWTPDFGenerator {
             const bgColor = index % 2 === 0 ? '#ffffff' : '#f8f9fa';
             const borderColor = index % 2 === 0 ? '#e3f2fd' : '#f3e5f5';
             
+            // Safely handle potentially undefined values
+            const displayName = product.name || 'N/A';
+            const displayDescription = product.description || 'N/A';
+            const displayModel = product.model || 'N/A';
+            const displayQuantity = product.quantity || 1;
+            const displayUnit = product.unit || 'PCS';
+            const displayWeight = product.weight || 'N/A';
+            const displaySpecialDetails = product.specialDetails || 'N/A';
+            const displayRate = (product.rate || 0).toFixed(2);
+            const displayAmount = (product.amount || 0).toFixed(2);
+            
             html += `
                 <tr style="background: ${bgColor}; border-bottom: 1px solid ${borderColor}; transition: all 0.3s ease;">
                     <td style="padding: 12px 10px; text-align: center; font-weight: bold; color: #0066cc; border: none; font-size: 13px;">${index + 1}</td>
-                    <td style="padding: 12px 12px; border: none; color: #333; font-weight: 600; font-size: 13px; line-height: 1.4; word-wrap: break-word;">${product.name || 'Product Name'}</td>
-                    <td style="padding: 12px 12px; border: none; color: #555; font-weight: 400; font-size: 13px; line-height: 1.4; word-wrap: break-word;">${product.description || 'Product Description'}</td>
-                    <td style="padding: 12px 10px; text-align: center; border: none; color: #666; font-size: 12px; font-weight: 500;">${product.model || 'N/A'}</td>
-                    <td style="padding: 12px 10px; text-align: center; border: none; color: #333; font-weight: bold; font-size: 13px;">${product.quantity || 1}</td>
-                    <td style="padding: 12px 10px; text-align: center; border: none; color: #666; font-weight: 500; font-size: 12px;">${product.unit || 'PCS'}</td>
-                    <td style="padding: 12px 12px; text-align: center; border: none; color: #666; font-style: italic; font-size: 12px; line-height: 1.3; word-wrap: break-word;">${product.weight || 'N/A'}</td>
-                    <td style="padding: 12px 12px; text-align: center; border: none; color: #666; font-size: 12px; line-height: 1.3; word-wrap: break-word;">${product.specialDetails || 'N/A'}</td>
-                    <td style="padding: 12px 10px; text-align: right; border: none; color: #28a745; font-weight: bold; font-size: 13px;">${this.getCurrencySymbol(data ? data.currency : 'BDT')} ${(product.rate || 0).toFixed(2)}</td>
-                    <td style="padding: 12px 10px; text-align: right; border: none; color: #dc3545; font-weight: bold; font-size: 13px; background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 50%);">${this.getCurrencySymbol(data ? data.currency : 'BDT')} ${(product.amount || 0).toFixed(2)}</td>
+                    <td style="padding: 12px 12px; border: none; color: #333; font-weight: 600; font-size: 13px; line-height: 1.4; word-wrap: break-word;">${displayName}</td>
+                    <td style="padding: 12px 12px; border: none; color: #555; font-weight: 400; font-size: 13px; line-height: 1.4; word-wrap: break-word;">${displayDescription}</td>
+                    <td style="padding: 12px 10px; text-align: center; border: none; color: #666; font-size: 12px; font-weight: 500;">${displayModel}</td>
+                    <td style="padding: 12px 10px; text-align: center; border: none; color: #333; font-weight: bold; font-size: 13px;">${displayQuantity}</td>
+                    <td style="padding: 12px 10px; text-align: center; border: none; color: #666; font-weight: 500; font-size: 12px;">${displayUnit}</td>
+                    <td style="padding: 12px 12px; text-align: center; border: none; color: #666; font-style: italic; font-size: 12px; line-height: 1.3; word-wrap: break-word;">${displayWeight}</td>
+                    <td style="padding: 12px 12px; text-align: center; border: none; color: #666; font-size: 12px; line-height: 1.3; word-wrap: break-word;">${displaySpecialDetails}</td>
+                    <td style="padding: 12px 10px; text-align: right; border: none; color: #28a745; font-weight: bold; font-size: 13px;">${this.getCurrencySymbol(data ? data.currency : 'BDT')} ${displayRate}</td>
+                    <td style="padding: 12px 10px; text-align: right; border: none; color: #dc3545; font-weight: bold; font-size: 13px; background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 50%);">${this.getCurrencySymbol(data ? data.currency : 'BDT')} ${displayAmount}</td>
                 </tr>
             `;
         });
@@ -936,13 +963,17 @@ class TWTPDFGenerator {
         const officeItems = document.querySelectorAll('.office-address-item');
         let officesHTML = '';
         
-        officeItems.forEach(item => {
-            const city = item.querySelector('.office-city').value;
-            const address = item.querySelector('.office-address').value;
-            if (city && address) {
-                officesHTML += `<div>🏢 ${city}: ${address}</div>`;
-            }
-        });
+        if (officeItems.length > 0) {
+            officeItems.forEach(item => {
+                const cityInput = item.querySelector('.office-city');
+                const addressInput = item.querySelector('.office-address');
+                const city = cityInput ? cityInput.value : '';
+                const address = addressInput ? addressInput.value : '';
+                if (city && address) {
+                    officesHTML += `<div>🏢 ${city}: ${address}</div>`;
+                }
+            });
+        }
         
         // Fallback to default if no offices are entered
         if (!officesHTML) {
@@ -960,19 +991,21 @@ class TWTPDFGenerator {
         const bankItems = document.querySelectorAll('.bank-account-item');
         let banksHTML = '';
         
-        bankItems.forEach(item => {
-            const select = item.querySelector('select[name="bankAccount"]');
-            const customDetails = item.querySelector('.custom-bank-details');
-            
-            if (select.value === 'custom' && customDetails.value) {
-                banksHTML += `<div style="margin-bottom: 8px;">${customDetails.value}</div>`;
-            } else if (select.value !== 'custom') {
-                const selectedOption = select.options[select.selectedIndex];
-                if (selectedOption && selectedOption.text) {
-                    banksHTML += `<div style="margin-bottom: 8px;">${selectedOption.text}</div>`;
+        if (bankItems.length > 0) {
+            bankItems.forEach(item => {
+                const select = item.querySelector('select[name="bankAccount"]');
+                const customDetails = item.querySelector('.custom-bank-details');
+                
+                if (select && select.value === 'custom' && customDetails && customDetails.value) {
+                    banksHTML += `<div style="margin-bottom: 8px;">${customDetails.value}</div>`;
+                } else if (select && select.value !== 'custom') {
+                    const selectedOption = select.options[select.selectedIndex];
+                    if (selectedOption && selectedOption.text) {
+                        banksHTML += `<div style="margin-bottom: 8px;">${selectedOption.text}</div>`;
+                    }
                 }
-            }
-        });
+            });
+        }
         
         // Fallback to default if no banks are selected
         if (!banksHTML) {
@@ -1072,19 +1105,24 @@ class TWTPDFGenerator {
     generateTermsAndConditionsHTML(data) {
         let termsContent = '';
         
-        if (data.paymentTerms || data.deliveryTerms || data.validityPeriod || data.additionalTerms) {
+        const hasValidTerms = (data.paymentTerms && data.paymentTerms !== 'N/A') || 
+                             (data.deliveryTerms && data.deliveryTerms !== 'N/A') || 
+                             (data.validityPeriod && data.validityPeriod !== 'N/A') || 
+                             (data.additionalTerms && data.additionalTerms !== 'N/A');
+        
+        if (hasValidTerms) {
             termsContent += '<ul style="margin: 0; padding-left: 20px; color: #555; line-height: 1.6; font-size: 13px;">';
             
-            if (data.paymentTerms) {
+            if (data.paymentTerms && data.paymentTerms !== 'N/A') {
                 termsContent += `<li style="margin-bottom: 8px;"><strong>Payment:</strong> ${data.paymentTerms}</li>`;
             }
-            if (data.deliveryTerms) {
+            if (data.deliveryTerms && data.deliveryTerms !== 'N/A') {
                 termsContent += `<li style="margin-bottom: 8px;"><strong>Delivery:</strong> ${data.deliveryTerms}</li>`;
             }
-            if (data.validityPeriod) {
+            if (data.validityPeriod && data.validityPeriod !== 'N/A') {
                 termsContent += `<li style="margin-bottom: 8px;"><strong>Validity:</strong> ${data.validityPeriod}</li>`;
             }
-            if (data.additionalTerms) {
+            if (data.additionalTerms && data.additionalTerms !== 'N/A') {
                 termsContent += `<li style="margin-bottom: 8px;">${data.additionalTerms}</li>`;
             }
         }
@@ -1124,54 +1162,66 @@ class TWTPDFGenerator {
         `;
     }
     
-    // Collect form data
+    // Collect form data - safely handle null elements
     collectFormData() {
+        const getValue = (id, defaultVal = '') => {
+            const element = document.getElementById(id);
+            if (!element) return defaultVal;
+            return element.value || defaultVal;
+        };
+        
+        const getCheckboxValue = (id, defaultVal = false) => {
+            const element = document.getElementById(id);
+            if (!element) return defaultVal;
+            return element.checked || defaultVal;
+        };
+        
         return {
-            docType: document.getElementById('docType').value || 'DOCUMENT',
-            docNo: document.getElementById('docNo').value || 'DOC-' + Date.now(),
-            docDate: document.getElementById('docDate').value || new Date().toISOString().split('T')[0],
-            clientName: document.getElementById('clientName').value || 'Client Name',
-            clientAddress: document.getElementById('clientAddress').value || 'Client Address',
-            clientPhone: document.getElementById('clientPhone').value || '',
-            clientEmail: document.getElementById('clientEmail').value || '',
+            docType: getValue('docType', 'DOCUMENT'),
+            docNo: getValue('docNo', 'DOC-' + Date.now()),
+            docDate: getValue('docDate', new Date().toISOString().split('T')[0]),
+            clientName: getValue('clientName', 'N/A'),
+            clientAddress: getValue('clientAddress', 'N/A'),
+            clientPhone: getValue('clientPhone', 'N/A'),
+            clientEmail: getValue('clientEmail', 'N/A'),
             // Import/Export fields
-            fromCountry: document.getElementById('fromCountry').value || '',
-            toCountry: document.getElementById('toCountry').value || '',
-            loadingPort: document.getElementById('loadingPort').value || '',
-            dischargePort: document.getElementById('dischargePort').value || '',
-            lcNumber: document.getElementById('lcNumber').value || '',
-            blNumber: document.getElementById('blNumber').value || '',
-            hsCode: document.getElementById('hsCode').value || '',
-            customsDecl: document.getElementById('customsDecl').value || '',
-            invoiceNumber: document.getElementById('invoiceNumber').value || '',
-            packingListNo: document.getElementById('packingListNo').value || '',
-            containerNo: document.getElementById('containerNo').value || '',
-            sealNo: document.getElementById('sealNo').value || '',
-            vesselName: document.getElementById('vesselName').value || '',
-            etdEta: document.getElementById('etdEta').value || '',
-            shippingLine: document.getElementById('shippingLine').value || '',
-            incoterms: document.getElementById('incoterms').value || '',
-            documentType: document.getElementById('documentType').value || 'COMMERCIAL_INVOICE',
-            receivedBy: document.getElementById('receivedBy').value || '',
-            receivedDate: document.getElementById('receivedDate').value || '',
+            fromCountry: getValue('fromCountry', 'N/A'),
+            toCountry: getValue('toCountry', 'N/A'),
+            loadingPort: getValue('loadingPort', 'N/A'),
+            dischargePort: getValue('dischargePort', 'N/A'),
+            lcNumber: getValue('lcNumber', 'N/A'),
+            blNumber: getValue('blNumber', 'N/A'),
+            hsCode: getValue('hsCode', 'N/A'),
+            customsDecl: getValue('customsDecl', 'N/A'),
+            invoiceNumber: getValue('invoiceNumber', 'N/A'),
+            packingListNo: getValue('packingListNo', 'N/A'),
+            containerNo: getValue('containerNo', 'N/A'),
+            sealNo: getValue('sealNo', 'N/A'),
+            vesselName: getValue('vesselName', 'N/A'),
+            etdEta: getValue('etdEta', 'N/A'),
+            shippingLine: getValue('shippingLine', 'N/A'),
+            incoterms: getValue('incoterms', 'N/A'),
+            documentType: getValue('documentType', 'COMMERCIAL_INVOICE'),
+            receivedBy: getValue('receivedBy', 'N/A'),
+            receivedDate: getValue('receivedDate', 'N/A'),
             // Financial fields
-            currency: document.getElementById('currency').value || 'BDT',
-            exchangeRate: document.getElementById('exchangeRate').value || '1.00',
-            bankAccount: document.getElementById('bankAccount').value || 'default',
-            customBank: document.getElementById('customBank').value || '',
-            subtotal: document.getElementById('subtotal').value || '0.00',
-            discount: document.getElementById('discount').value || '0',
-            shipping: document.getElementById('shipping').value || '0.00',
-            tax: document.getElementById('tax').value || '0',
-            totalAmount: document.getElementById('totalAmount').value || '0.00',
-            amountWords: document.getElementById('amountWords').value || '',
-            advance: document.getElementById('advance').value || '0.00',
-            balance: document.getElementById('balance').value || '0.00',
-            paymentTerms: document.getElementById('paymentTerms').value || '',
-            deliveryTerms: document.getElementById('deliveryTerms').value || '',
-            validityPeriod: document.getElementById('validityPeriod').value || '',
-            additionalTerms: document.getElementById('additionalTerms').value || '',
-            includeStandardTerms: document.getElementById('includeStandardTerms').checked || false,
+            currency: getValue('currency', 'BDT'),
+            exchangeRate: getValue('exchangeRate', '1.00'),
+            bankAccount: getValue('bankAccount', 'default'),
+            customBank: getValue('customBank', 'N/A'),
+            subtotal: getValue('subtotal', '0.00'),
+            discount: getValue('discount', '0'),
+            shipping: getValue('shipping', '0.00'),
+            tax: getValue('tax', '0'),
+            totalAmount: getValue('totalAmount', '0.00'),
+            amountWords: getValue('amountWords', 'N/A'),
+            advance: getValue('advance', '0.00'),
+            balance: getValue('balance', '0.00'),
+            paymentTerms: getValue('paymentTerms', 'N/A'),
+            deliveryTerms: getValue('deliveryTerms', 'N/A'),
+            validityPeriod: getValue('validityPeriod', 'N/A'),
+            additionalTerms: getValue('additionalTerms', 'N/A'),
+            includeStandardTerms: getCheckboxValue('includeStandardTerms', false),
             products: window.products || []
         };
     }

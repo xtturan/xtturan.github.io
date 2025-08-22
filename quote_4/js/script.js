@@ -52,12 +52,34 @@ function bindEvents() {
         updateProgress(1);
     });
     
-    // Bank account change
-    document.getElementById('bankAccount').addEventListener('change', function() {
-        if (this.value === 'custom') {
-            document.getElementById('customBankDiv').style.display = 'block';
-        } else {
-            document.getElementById('customBankDiv').style.display = 'none';
+    // Bank account change - handle existing select elements
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('select[name="bankAccount"]')) {
+            const item = e.target.closest('.bank-account-item');
+            const customTextarea = item.querySelector('.custom-bank-details');
+            if (e.target.value === 'custom') {
+                customTextarea.style.display = 'block';
+            } else {
+                customTextarea.style.display = 'none';
+            }
+        }
+    });
+
+    // Remove bank account handler
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.remove-bank')) {
+            const item = e.target.closest('.bank-account-item');
+            item.remove();
+            updateRemoveButtons();
+        }
+    });
+
+    // Remove office handler
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.remove-office')) {
+            const item = e.target.closest('.office-address-item');
+            item.remove();
+            updateOfficeRemoveButtons();
         }
     });
     
@@ -75,6 +97,12 @@ function bindEvents() {
     window.addEventListener('orientationchange', function() {
         setTimeout(checkOrientation, 100);
     });
+    
+    // Initialize remove buttons on page load
+    setTimeout(() => {
+        updateRemoveButtons();
+        updateOfficeRemoveButtons();
+    }, 100);
 }
 
 // Set Current Date
@@ -567,34 +595,46 @@ function loadDraft() {
 }
 
 function collectFormData() {
+    const getValue = (id, defaultVal = '') => {
+        const element = document.getElementById(id);
+        if (!element) return defaultVal === '' ? 'N/A' : defaultVal;
+        return element.value ? element.value : (defaultVal === '' ? 'N/A' : defaultVal);
+    };
+    
+    const getCheckboxValue = (id, defaultVal = false) => {
+        const element = document.getElementById(id);
+        if (!element) return defaultVal;
+        return element.checked || defaultVal;
+    };
+    
     return {
-        docType: document.getElementById('docType').value,
-        customDocType: document.getElementById('customDocType').value,
-        docNo: document.getElementById('docNo').value,
-        docDate: document.getElementById('docDate').value,
-        clientName: document.getElementById('clientName').value,
-        clientAddress: document.getElementById('clientAddress').value,
-        clientPhone: document.getElementById('clientPhone').value,
-        clientEmail: document.getElementById('clientEmail').value,
-        fromCountry: document.getElementById('fromCountry').value,
-        toCountry: document.getElementById('toCountry').value,
-        loadingPort: document.getElementById('loadingPort').value,
-        dischargePort: document.getElementById('dischargePort').value,
-        lcNumber: document.getElementById('lcNumber').value,
-        blNumber: document.getElementById('blNumber').value,
-        hsCode: document.getElementById('hsCode').value,
-        customsDecl: document.getElementById('customsDecl').value,
-        incoterms: document.getElementById('incoterms').value,
-        transport: document.getElementById('transport').value,
-        discount: document.getElementById('discount').value,
-        shipping: document.getElementById('shipping').value,
-        tax: document.getElementById('tax').value,
-        advance: document.getElementById('advance').value,
-        paymentTerms: document.getElementById('paymentTerms').value,
-        deliveryTerms: document.getElementById('deliveryTerms').value,
-        validityPeriod: document.getElementById('validityPeriod').value,
-        additionalTerms: document.getElementById('additionalTerms').value,
-        includeStandardTerms: document.getElementById('includeStandardTerms').checked,
+        docType: getValue('docType', 'DOCUMENT'),
+        customDocType: getValue('customDocType'),
+        docNo: getValue('docNo', 'DOC-' + Date.now()),
+        docDate: getValue('docDate', new Date().toISOString().split('T')[0]),
+        clientName: getValue('clientName'),
+        clientAddress: getValue('clientAddress'),
+        clientPhone: getValue('clientPhone'),
+        clientEmail: getValue('clientEmail'),
+        fromCountry: getValue('fromCountry'),
+        toCountry: getValue('toCountry'),
+        loadingPort: getValue('loadingPort'),
+        dischargePort: getValue('dischargePort'),
+        lcNumber: getValue('lcNumber'),
+        blNumber: getValue('blNumber'),
+        hsCode: getValue('hsCode'),
+        customsDecl: getValue('customsDecl'),
+        incoterms: getValue('incoterms'),
+        transport: getValue('transport'),
+        discount: getValue('discount', '0'),
+        shipping: getValue('shipping', '0'),
+        tax: getValue('tax', '0'),
+        advance: getValue('advance', '0'),
+        paymentTerms: getValue('paymentTerms'),
+        deliveryTerms: getValue('deliveryTerms'),
+        validityPeriod: getValue('validityPeriod'),
+        additionalTerms: getValue('additionalTerms'),
+        includeStandardTerms: getCheckboxValue('includeStandardTerms'),
         products: products
     };
 }
@@ -1219,7 +1259,7 @@ function clearForm() {
         // Clear products array
         products = [];
         window.products = products;
-        updateProductDisplay();
+        renderProducts();
         
         // Reset to defaults
         setCurrentDate();
