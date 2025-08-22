@@ -148,23 +148,25 @@ function updatePngPreview() {
     }
 }
 
-// Get PNG filename from input field
+// Get PNG filename from input field - Simple fallback version
 function getPngFilename() {
     try {
         const filenameInput = document.getElementById('pngFilename');
-        const customName = filenameInput ? filenameInput.value.trim() : '';
-        
-        if (customName) {
-            return customName;
-        } else {
-            // Generate auto name
-            const docType = document.getElementById('docType')?.value || 'DOCUMENT';
-            const docNo = document.getElementById('docNo')?.value || 'NO_NUMBER';
-            const date = new Date().toISOString().split('T')[0];
-            return `${docType}_${docNo}_${date}`;
+        if (filenameInput && filenameInput.value.trim()) {
+            return filenameInput.value.trim();
         }
     } catch (error) {
         console.error('Error getting PNG filename:', error);
+    }
+    
+    // Fallback to auto-generated name
+    try {
+        const docType = document.getElementById('docType')?.value || 'DOCUMENT';
+        const docNo = document.getElementById('docNo')?.value || 'NO_NUMBER';
+        const date = new Date().toISOString().split('T')[0];
+        return `${docType}_${docNo}_${date}`;
+    } catch (error) {
+        console.error('Error generating auto filename:', error);
         return 'document';
     }
 }
