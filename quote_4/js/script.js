@@ -10,19 +10,6 @@ let isBengali = false;
 let clients = JSON.parse(localStorage.getItem('twtClients') || '[]');
 let fabOpen = false;
 
-// Error handler to prevent white screen
-window.onerror = function(message, source, lineno, colno, error) {
-    console.error('JavaScript Error:', {
-        message: message,
-        source: source,
-        line: lineno,
-        column: colno,
-        error: error
-    });
-    // Don't prevent default error handling
-    return false;
-};
-
 // Initialize App
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
@@ -81,97 +68,11 @@ function initializeApp() {
             console.warn('Missing form elements:', missingElements);
         }
         
-        console.log('TWT Document Generator v4.7 Initialized');
-        
-        // Skip PNG filename initialization for now to test basic loading
-        console.log('Skipping PNG initialization to test basic page load');
-        
+        console.log('TWT Document Generator v4.5 Initialized');
     } catch (error) {
         console.error('Error initializing app:', error);
     }
 }
-
-// Initialize PNG filename preview
-function initializePngFilenamePreview() {
-    try {
-        console.log('Initializing PNG filename preview...');
-        const filenameInput = document.getElementById('pngFilename');
-        const preview = document.getElementById('pngPreview');
-        
-        if (filenameInput && preview) {
-            console.log('PNG elements found, setting up listeners');
-            // Update preview when user types
-            filenameInput.addEventListener('input', function() {
-                try {
-                    updatePngPreview();
-                } catch (e) {
-                    console.error('Error in preview update:', e);
-                }
-            });
-            
-            // Initialize with current document data
-            updatePngPreview();
-        } else {
-            console.warn('PNG filename elements not found, retrying in 2 seconds...');
-            // Retry after a longer delay
-            setTimeout(initializePngFilenamePreview, 2000);
-        }
-    } catch (error) {
-        console.error('Error initializing PNG filename preview:', error);
-    }
-}
-
-// Update PNG filename preview
-function updatePngPreview() {
-    try {
-        const filenameInput = document.getElementById('pngFilename');
-        const preview = document.getElementById('pngPreview');
-        
-        if (!filenameInput || !preview) {
-            console.warn('PNG preview elements not found');
-            return;
-        }
-        
-        const customName = filenameInput.value.trim();
-        if (customName) {
-            preview.textContent = `${customName}.png`;
-        } else {
-            // Generate auto name
-            const docType = document.getElementById('docType')?.value || 'DOCUMENT';
-            const docNo = document.getElementById('docNo')?.value || 'NO_NUMBER';
-            const date = new Date().toISOString().split('T')[0];
-            const autoName = `${docType}_${docNo}_${date}`;
-            preview.textContent = `${autoName}.png`;
-        }
-    } catch (error) {
-        console.error('Error updating PNG preview:', error);
-    }
-}
-
-// Get PNG filename from input field - Simple fallback version
-function getPngFilename() {
-    try {
-        const filenameInput = document.getElementById('pngFilename');
-        if (filenameInput && filenameInput.value.trim()) {
-            return filenameInput.value.trim();
-        }
-    } catch (error) {
-        console.error('Error getting PNG filename:', error);
-    }
-    
-    // Fallback to auto-generated name
-    try {
-        const docType = document.getElementById('docType')?.value || 'DOCUMENT';
-        const docNo = document.getElementById('docNo')?.value || 'NO_NUMBER';
-        const date = new Date().toISOString().split('T')[0];
-        return `${docType}_${docNo}_${date}`;
-    } catch (error) {
-        console.error('Error generating auto filename:', error);
-        return 'document';
-    }
-}
-
-
 
 // Check for required dependencies
 async function checkDependencies() {
@@ -207,39 +108,15 @@ async function checkDependencies() {
 
 // Bind Event Listeners
 function bindEvents() {
-    try {
-        // Document type change
-        const docTypeEl = document.getElementById('docType');
-        if (docTypeEl) {
-            docTypeEl.addEventListener('change', function() {
-                if (this.value === 'CUSTOM') {
-                    const customTypeDiv = document.getElementById('customTypeDiv');
-                    if (customTypeDiv) {
-                        customTypeDiv.style.display = 'block';
-                    }
-                } else {
-                    const customTypeDiv = document.getElementById('customTypeDiv');
-                    if (customTypeDiv) {
-                        customTypeDiv.style.display = 'none';
-                    }
-                }
-                updateProgress(1);
-                // Update PNG filename preview
-                if (typeof updatePngPreview === 'function') {
-                    updatePngPreview();
-                }
-            });
+    // Document type change
+    document.getElementById('docType').addEventListener('change', function() {
+        if (this.value === 'CUSTOM') {
+            document.getElementById('customTypeDiv').style.display = 'block';
+        } else {
+            document.getElementById('customTypeDiv').style.display = 'none';
         }
-        
-        // Document number change - update PNG preview
-        const docNoEl = document.getElementById('docNo');
-        if (docNoEl) {
-            docNoEl.addEventListener('input', function() {
-                if (typeof updatePngPreview === 'function') {
-                    updatePngPreview();
-                }
-            });
-        }
+        updateProgress(1);
+    });
     
     // Bank account change - handle existing select elements
     document.addEventListener('change', function(e) {
@@ -292,10 +169,6 @@ function bindEvents() {
         updateRemoveButtons();
         updateOfficeRemoveButtons();
     }, 100);
-    
-    } catch (error) {
-        console.error('Error binding events:', error);
-    }
 }
 
 // Set Current Date

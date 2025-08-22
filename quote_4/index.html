@@ -1,20 +1,6 @@
 <!DOCTYPE html>
-<html lan            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <!-- Left side - can add menu items here if needed -->
-                </ul>
-                
-                <!-- Center - Version -->
-                <span class="navbar-text mx-auto fs-5 fw-bold text-light">v4.7</span>
-                
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item d-flex align-items-center">
-                        <button class="btn btn-outline-light btn-sm" onclick="toggleDarkMode()">
-                            <i class="fas fa-moon"></i> Dark Mode
-                        </button>
-                    </li>
-                </ul>
-            </div>head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>TWT International - Document Generator</title>
@@ -41,7 +27,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item d-flex align-items-center">
-                                        <span class="navbar-text me-3">v4.6</span>
+                                        <span class="navbar-text me-3">v4.5</span>
                         <button class="btn btn-outline-light btn-sm" onclick="toggleDarkMode()">
                             <i class="fas fa-moon"></i> Dark Mode
                         </button>
@@ -533,27 +519,12 @@
                 <!-- Action Buttons -->
                 <div class="card mb-5">
                     <div class="card-body">
-                        <!-- PNG Filename Input -->
-                        <div class="mb-3">
-                            <label for="pngFilename" class="form-label">
-                                <i class="fas fa-file-signature me-1"></i>PNG Filename
-                            </label>
-                            <input type="text" class="form-control" id="pngFilename" 
-                                   placeholder="Enter filename (without .png extension)"
-                                   value="">
-                            <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Leave empty for auto-generated name. File will be saved as: <strong><span id="pngPreview">auto-generated.png</span></strong>
-                            </div>
-                        </div>
-                        
                         <div class="row g-2">
                             <div class="col-12">
                                 <button class="btn btn-success w-100" onclick="generatePNG()">
                                     <i class="fas fa-image"></i> Generate Invoice (PNG)
                                 </button>
                             </div>
-                        </div>
                         </div>
                     </div>
                 </div>

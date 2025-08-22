@@ -88,25 +88,27 @@ class TWTPDFGenerator {
             // Wait longer for content to render and images to load on GitHub Pages
             await new Promise(resolve => setTimeout(resolve, 2000));
             
-            // Calculate dynamic dimensions based on content
-            const contentWidth = Math.max(tempDiv.scrollWidth + 100, 1200); // Minimum width
-            const contentHeight = Math.max(tempDiv.scrollHeight + 100, 800); // Minimum height
+            // Calculate dynamic dimensions based on actual content
+            const contentWidth = Math.max(tempDiv.scrollWidth + 100, 800); // Add padding, minimum width
+            const contentHeight = Math.max(tempDiv.scrollHeight + 100, 600); // Add padding, minimum height
             console.log('Content dimensions calculated:', { width: contentWidth, height: contentHeight });
             
-            // Use html2canvas to convert to image with dynamic sizing
+            // Use html2canvas to convert to image
             console.log('Starting html2canvas conversion...');
             const canvas = await html2canvas(tempDiv, {
                 scale: 1.2,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
-                // Let html2canvas auto-detect the size
+                // Remove fixed dimensions to let html2canvas auto-detect content size
                 // width: contentWidth,
                 // height: contentHeight,
                 scrollX: 0,
                 scrollY: 0,
                 logging: false,
                 imageTimeout: 30000, // Increased timeout for GitHub Pages
+                windowWidth: tempDiv.scrollWidth + 200, // Add extra width buffer
+                windowHeight: tempDiv.scrollHeight + 200, // Add extra height buffer
                 onclone: function(clonedDoc) {
                     console.log('Document cloned for canvas rendering');
                     // Remove any problematic elements in the cloned document
@@ -130,19 +132,15 @@ class TWTPDFGenerator {
                 console.log('Temporary div removed');
             }
             
-            // Convert to PNG and prompt for filename
+            // Convert to PNG and download
             const imgData = canvas.toDataURL('image/png', 1.0);
             
             if (!imgData || imgData === 'data:,') {
                 throw new Error('Failed to generate image data');
             }
             
-            // Get filename from input field (no modal needed)
-            const filename = window.getPngFilename ? window.getPngFilename() : this.getDocumentFileName(data);
-            console.log('Using filename from input field:', filename);
-            
             const link = document.createElement('a');
-            link.download = `${filename}.png`;
+            link.download = `${this.getDocumentFileName(data)}.png`;
             link.href = imgData;
             
             // Trigger download
@@ -746,14 +744,15 @@ class TWTPDFGenerator {
             position: fixed;
             top: -9999px;
             left: -9999px;
-            min-width: 1200px;
-            max-width: none;
+            min-width: 1000px;
+            max-width: 1400px;
             width: auto;
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             padding: 40px;
             font-family: 'Segoe UI', Arial, sans-serif;
             color: #333;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-sizing: border-box;
             overflow: visible;
         `;
         
@@ -788,7 +787,7 @@ class TWTPDFGenerator {
             </div>
             
             <div style="background: linear-gradient(135deg, #fff3e0 0%, #fce4ec 100%); padding: 20px; margin-bottom: 25px; border-radius: 10px; border: 2px solid #0066cc;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; word-wrap: break-word; overflow-wrap: break-word;">
                     <div>
                         <div style="color: #0066cc; font-weight: bold; margin-bottom: 8px;">📋 Document Details</div>
                         <div style="font-size: 13px; line-height: 1.5;">
@@ -976,19 +975,19 @@ class TWTPDFGenerator {
             <div style="margin: 25px 0;">
                 <h3 style="color: #0066cc; margin-bottom: 20px; font-size: 18px; border-bottom: 3px solid #0066cc; padding-bottom: 8px; display: inline-block;">📦 Products & Services</h3>
                 <div style="overflow-x: auto; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); background: white;">
-                    <table style="width: 100%; border-collapse: collapse; background: white; min-width: max-content;">
+                    <table style="width: 100%; border-collapse: collapse; background: white; table-layout: auto;">
                         <thead>
                             <tr style="background: linear-gradient(135deg, #0066cc 0%, #004d99 100%); color: white;">
-                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 50px;">#</th>
-                                <th style="padding: 15px 12px; text-align: left; font-weight: bold; border: none; font-size: 13px; min-width: 150px;">Product Name</th>
-                                <th style="padding: 15px 12px; text-align: left; font-weight: bold; border: none; font-size: 13px; min-width: 200px;">Description</th>
+                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 40px;">#</th>
+                                <th style="padding: 15px 12px; text-align: left; font-weight: bold; border: none; font-size: 13px; min-width: 120px;">Product Name</th>
+                                <th style="padding: 15px 12px; text-align: left; font-weight: bold; border: none; font-size: 13px; min-width: 150px;">Description</th>
                                 <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 80px;">Model</th>
                                 <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 60px;">Qty</th>
                                 <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 60px;">Unit</th>
                                 <th style="padding: 15px 12px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 100px;">Weight/Spec</th>
                                 <th style="padding: 15px 12px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 120px;">Special Details</th>
                                 <th style="padding: 15px 10px; text-align: right; font-weight: bold; border: none; font-size: 13px; min-width: 80px;">Rate</th>
-                                <th style="padding: 15px 10px; text-align: right; font-weight: bold; border: none; font-size: 13px; min-width: 100px;">Amount</th>
+                                <th style="padding: 15px 10px; text-align: right; font-weight: bold; border: none; font-size: 13px; min-width: 80px;">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1351,180 +1350,6 @@ class TWTPDFGenerator {
         }
         
         return true;
-    }
-    
-    // Prompt user for filename
-    async promptForFilename(data) {
-        return new Promise((resolve) => {
-            try {
-                // Remove any existing modals first
-                const existingModals = document.querySelectorAll('#filenameModal');
-                existingModals.forEach(modal => modal.remove());
-                
-                // Create modal for filename input
-                const modal = document.createElement('div');
-                modal.className = 'modal fade';
-                modal.id = 'filenameModal';
-                modal.setAttribute('data-bs-backdrop', 'static');
-                modal.setAttribute('data-bs-keyboard', 'false');
-                modal.innerHTML = `
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-edit me-2"></i>Set PNG Filename
-                                </h5>
-                            </div>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label for="pngFilename" class="form-label">Enter filename (without .png extension):</label>
-                                    <input type="text" class="form-control" id="pngFilename" 
-                                           value="${this.getDocumentFileName(data)}" 
-                                           placeholder="Enter filename"
-                                           autocomplete="off">
-                                    <div class="form-text">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        The file will be saved as: <strong><span id="previewFilename">${this.getDocumentFileName(data)}.png</span></strong>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" id="cancelFilename">
-                                    <i class="fas fa-times me-2"></i>Cancel
-                                </button>
-                                <button type="button" class="btn btn-primary" id="confirmFilename">
-                                    <i class="fas fa-download me-2"></i>Download PNG
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                document.body.appendChild(modal);
-                
-                // Set a timeout to auto-resolve if modal gets stuck
-                const modalTimeout = setTimeout(() => {
-                    console.warn('Modal timeout - auto-resolving with default filename');
-                    if (modal.parentNode) {
-                        modal.remove();
-                    }
-                    resolve(this.getDocumentFileName(data));
-                }, 30000); // 30 second timeout
-                
-                // Initialize modal with error handling
-                let modalInstance;
-                try {
-                    modalInstance = new bootstrap.Modal(modal, {
-                        backdrop: 'static',
-                        keyboard: false
-                    });
-                    modalInstance.show();
-                } catch (error) {
-                    console.error('Bootstrap modal error:', error);
-                    // Fallback to simple prompt if Bootstrap modal fails
-                    modal.remove();
-                    const filename = prompt('Enter PNG filename (without .png extension):', this.getDocumentFileName(data));
-                    resolve(filename);
-                    return;
-                }
-                
-                const filenameInput = document.getElementById('pngFilename');
-                const previewFilename = document.getElementById('previewFilename');
-                const confirmBtn = document.getElementById('confirmFilename');
-                const cancelBtn = document.getElementById('cancelFilename');
-                
-                // Update preview as user types
-                filenameInput.addEventListener('input', function() {
-                    const filename = this.value.trim() || 'document';
-                    previewFilename.textContent = `${filename}.png`;
-                });
-                
-                // Focus on input and select text
-                setTimeout(() => {
-                    filenameInput.focus();
-                    filenameInput.select();
-                }, 500);
-                
-                // Handle Enter key
-                filenameInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        confirmBtn.click();
-                    }
-                });
-                
-                // Handle Escape key
-                document.addEventListener('keydown', function escapeHandler(e) {
-                    if (e.key === 'Escape') {
-                        e.preventDefault();
-                        document.removeEventListener('keydown', escapeHandler);
-                        cancelBtn.click();
-                    }
-                });
-                
-                // Handle confirm
-                confirmBtn.addEventListener('click', function() {
-                    try {
-                        clearTimeout(modalTimeout);
-                        const filename = filenameInput.value.trim() || 'document';
-                        modalInstance.hide();
-                        
-                        // Clean up modal after animation
-                        setTimeout(() => {
-                            if (modal.parentNode) {
-                                modal.remove();
-                            }
-                        }, 300);
-                        
-                        resolve(filename);
-                    } catch (error) {
-                        console.error('Error confirming filename:', error);
-                        clearTimeout(modalTimeout);
-                        modal.remove();
-                        resolve('document');
-                    }
-                });
-                
-                // Handle cancel
-                cancelBtn.addEventListener('click', function() {
-                    try {
-                        clearTimeout(modalTimeout);
-                        modalInstance.hide();
-                        
-                        // Clean up modal after animation
-                        setTimeout(() => {
-                            if (modal.parentNode) {
-                                modal.remove();
-                            }
-                        }, 300);
-                        
-                        resolve(null); // Return null to indicate cancellation
-                    } catch (error) {
-                        console.error('Error cancelling filename:', error);
-                        clearTimeout(modalTimeout);
-                        modal.remove();
-                        resolve(null);
-                    }
-                });
-                
-                // Handle modal close/hidden events
-                modal.addEventListener('hidden.bs.modal', function() {
-                    try {
-                        if (modal.parentNode) {
-                            modal.remove();
-                        }
-                    } catch (error) {
-                        console.error('Error cleaning up modal:', error);
-                    }
-                });
-                
-            } catch (error) {
-                console.error('Error creating filename modal:', error);
-                // Fallback to simple prompt
-                const filename = prompt('Enter PNG filename (without .png extension):', this.getDocumentFileName(data));
-                resolve(filename);
-            }
-        });
     }
     
     getDocumentFileName(data) {
