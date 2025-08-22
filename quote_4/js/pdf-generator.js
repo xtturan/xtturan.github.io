@@ -88,19 +88,21 @@ class TWTPDFGenerator {
             // Wait longer for content to render and images to load on GitHub Pages
             await new Promise(resolve => setTimeout(resolve, 2000));
             
-            // Calculate dynamic height based on content
+            // Calculate dynamic dimensions based on content
+            const contentWidth = Math.max(tempDiv.scrollWidth + 100, 1200); // Minimum width
             const contentHeight = Math.max(tempDiv.scrollHeight + 100, 800); // Minimum height
-            console.log('Content height calculated:', contentHeight);
+            console.log('Content dimensions calculated:', { width: contentWidth, height: contentHeight });
             
-            // Use html2canvas to convert to image
+            // Use html2canvas to convert to image with dynamic sizing
             console.log('Starting html2canvas conversion...');
             const canvas = await html2canvas(tempDiv, {
                 scale: 1.2,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#ffffff',
-                width: 1200,
-                height: contentHeight,
+                // Let html2canvas auto-detect the size
+                // width: contentWidth,
+                // height: contentHeight,
                 scrollX: 0,
                 scrollY: 0,
                 logging: false,
@@ -128,15 +130,25 @@ class TWTPDFGenerator {
                 console.log('Temporary div removed');
             }
             
-            // Convert to PNG and download
+            // Convert to PNG and prompt for filename
             const imgData = canvas.toDataURL('image/png', 1.0);
             
             if (!imgData || imgData === 'data:,') {
                 throw new Error('Failed to generate image data');
             }
             
+            // Get filename from user
+            const filename = await this.promptForFilename(data);
+            
+            // If user cancelled, don't download
+            if (filename === null) {
+                this.hideLoading();
+                this.showToast('PNG generation cancelled.', 'info');
+                return false;
+            }
+            
             const link = document.createElement('a');
-            link.download = `${this.getDocumentFileName(data)}.png`;
+            link.download = `${filename}.png`;
             link.href = imgData;
             
             // Trigger download
@@ -740,12 +752,15 @@ class TWTPDFGenerator {
             position: fixed;
             top: -9999px;
             left: -9999px;
-            width: 1200px;
+            min-width: 1200px;
+            max-width: none;
+            width: auto;
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             padding: 40px;
             font-family: 'Segoe UI', Arial, sans-serif;
             color: #333;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: visible;
         `;
         
         div.innerHTML = `
@@ -967,19 +982,19 @@ class TWTPDFGenerator {
             <div style="margin: 25px 0;">
                 <h3 style="color: #0066cc; margin-bottom: 20px; font-size: 18px; border-bottom: 3px solid #0066cc; padding-bottom: 8px; display: inline-block;">📦 Products & Services</h3>
                 <div style="overflow-x: auto; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); background: white;">
-                    <table style="width: 100%; border-collapse: collapse; background: white; min-width: 1100px;">
+                    <table style="width: 100%; border-collapse: collapse; background: white; min-width: max-content;">
                         <thead>
                             <tr style="background: linear-gradient(135deg, #0066cc 0%, #004d99 100%); color: white;">
-                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; width: 5%;">#</th>
-                                <th style="padding: 15px 12px; text-align: left; font-weight: bold; border: none; font-size: 13px; width: 18%;">Product Name</th>
-                                <th style="padding: 15px 12px; text-align: left; font-weight: bold; border: none; font-size: 13px; width: 20%;">Description</th>
-                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; width: 12%;">Model</th>
-                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; width: 8%;">Qty</th>
-                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; width: 8%;">Unit</th>
-                                <th style="padding: 15px 12px; text-align: center; font-weight: bold; border: none; font-size: 13px; width: 12%;">Weight/Spec</th>
-                                <th style="padding: 15px 12px; text-align: center; font-weight: bold; border: none; font-size: 13px; width: 12%;">Special Details</th>
-                                <th style="padding: 15px 10px; text-align: right; font-weight: bold; border: none; font-size: 13px; width: 10%;">Rate</th>
-                                <th style="padding: 15px 10px; text-align: right; font-weight: bold; border: none; font-size: 13px; width: 10%;">Amount</th>
+                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 50px;">#</th>
+                                <th style="padding: 15px 12px; text-align: left; font-weight: bold; border: none; font-size: 13px; min-width: 150px;">Product Name</th>
+                                <th style="padding: 15px 12px; text-align: left; font-weight: bold; border: none; font-size: 13px; min-width: 200px;">Description</th>
+                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 80px;">Model</th>
+                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 60px;">Qty</th>
+                                <th style="padding: 15px 10px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 60px;">Unit</th>
+                                <th style="padding: 15px 12px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 100px;">Weight/Spec</th>
+                                <th style="padding: 15px 12px; text-align: center; font-weight: bold; border: none; font-size: 13px; min-width: 120px;">Special Details</th>
+                                <th style="padding: 15px 10px; text-align: right; font-weight: bold; border: none; font-size: 13px; min-width: 80px;">Rate</th>
+                                <th style="padding: 15px 10px; text-align: right; font-weight: bold; border: none; font-size: 13px; min-width: 100px;">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1342,6 +1357,100 @@ class TWTPDFGenerator {
         }
         
         return true;
+    }
+    
+    // Prompt user for filename
+    async promptForFilename(data) {
+        return new Promise((resolve) => {
+            // Create modal for filename input
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'filenameModal';
+            modal.setAttribute('data-bs-backdrop', 'static');
+            modal.innerHTML = `
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-edit me-2"></i>Set PNG Filename
+                            </h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="pngFilename" class="form-label">Enter filename (without .png extension):</label>
+                                <input type="text" class="form-control" id="pngFilename" 
+                                       value="${this.getDocumentFileName(data)}" 
+                                       placeholder="Enter filename">
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    The file will be saved as: <strong><span id="previewFilename">${this.getDocumentFileName(data)}.png</span></strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" id="cancelFilename">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                            <button type="button" class="btn btn-primary" id="confirmFilename">
+                                <i class="fas fa-download me-2"></i>Download PNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Initialize modal
+            const modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
+            
+            const filenameInput = document.getElementById('pngFilename');
+            const previewFilename = document.getElementById('previewFilename');
+            const confirmBtn = document.getElementById('confirmFilename');
+            const cancelBtn = document.getElementById('cancelFilename');
+            
+            // Update preview as user types
+            filenameInput.addEventListener('input', function() {
+                const filename = this.value.trim() || 'document';
+                previewFilename.textContent = `${filename}.png`;
+            });
+            
+            // Focus on input and select text
+            setTimeout(() => {
+                filenameInput.focus();
+                filenameInput.select();
+            }, 300);
+            
+            // Handle Enter key
+            filenameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    confirmBtn.click();
+                }
+            });
+            
+            // Handle confirm
+            confirmBtn.addEventListener('click', function() {
+                const filename = filenameInput.value.trim() || 'document';
+                modalInstance.hide();
+                modal.remove();
+                resolve(filename);
+            });
+            
+            // Handle cancel
+            cancelBtn.addEventListener('click', function() {
+                modalInstance.hide();
+                modal.remove();
+                resolve(null); // Return null to indicate cancellation
+            });
+            
+            // Handle modal close
+            modal.addEventListener('hidden.bs.modal', function() {
+                if (modal.parentNode) {
+                    modal.remove();
+                }
+            });
+        });
     }
     
     getDocumentFileName(data) {

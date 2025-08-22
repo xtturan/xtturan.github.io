@@ -68,7 +68,7 @@ function initializeApp() {
             console.warn('Missing form elements:', missingElements);
         }
         
-        console.log('TWT Document Generator v4.4 Initialized');
+        console.log('TWT Document Generator v4.5 Initialized');
     } catch (error) {
         console.error('Error initializing app:', error);
     }
