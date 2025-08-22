@@ -79,26 +79,39 @@ function initializeApp() {
 
 // Initialize PNG filename preview
 function initializePngFilenamePreview() {
-    const filenameInput = document.getElementById('pngFilename');
-    const preview = document.getElementById('pngPreview');
-    
-    if (filenameInput && preview) {
-        // Update preview when user types
-        filenameInput.addEventListener('input', function() {
-            updatePngPreview();
-        });
+    try {
+        const filenameInput = document.getElementById('pngFilename');
+        const preview = document.getElementById('pngPreview');
         
-        // Initialize with current document data
-        updatePngPreview();
+        if (filenameInput && preview) {
+            // Update preview when user types
+            filenameInput.addEventListener('input', function() {
+                updatePngPreview();
+            });
+            
+            // Initialize with current document data
+            updatePngPreview();
+        } else {
+            console.warn('PNG filename elements not found yet, will retry...');
+            // Retry after a short delay
+            setTimeout(initializePngFilenamePreview, 500);
+        }
+    } catch (error) {
+        console.error('Error initializing PNG filename preview:', error);
     }
 }
 
 // Update PNG filename preview
 function updatePngPreview() {
-    const filenameInput = document.getElementById('pngFilename');
-    const preview = document.getElementById('pngPreview');
-    
-    if (filenameInput && preview) {
+    try {
+        const filenameInput = document.getElementById('pngFilename');
+        const preview = document.getElementById('pngPreview');
+        
+        if (!filenameInput || !preview) {
+            console.warn('PNG preview elements not found');
+            return;
+        }
+        
         const customName = filenameInput.value.trim();
         if (customName) {
             preview.textContent = `${customName}.png`;
@@ -110,22 +123,29 @@ function updatePngPreview() {
             const autoName = `${docType}_${docNo}_${date}`;
             preview.textContent = `${autoName}.png`;
         }
+    } catch (error) {
+        console.error('Error updating PNG preview:', error);
     }
 }
 
 // Get PNG filename from input field
 function getPngFilename() {
-    const filenameInput = document.getElementById('pngFilename');
-    const customName = filenameInput ? filenameInput.value.trim() : '';
-    
-    if (customName) {
-        return customName;
-    } else {
-        // Generate auto name
-        const docType = document.getElementById('docType')?.value || 'DOCUMENT';
-        const docNo = document.getElementById('docNo')?.value || 'NO_NUMBER';
-        const date = new Date().toISOString().split('T')[0];
-        return `${docType}_${docNo}_${date}`;
+    try {
+        const filenameInput = document.getElementById('pngFilename');
+        const customName = filenameInput ? filenameInput.value.trim() : '';
+        
+        if (customName) {
+            return customName;
+        } else {
+            // Generate auto name
+            const docType = document.getElementById('docType')?.value || 'DOCUMENT';
+            const docNo = document.getElementById('docNo')?.value || 'NO_NUMBER';
+            const date = new Date().toISOString().split('T')[0];
+            return `${docType}_${docNo}_${date}`;
+        }
+    } catch (error) {
+        console.error('Error getting PNG filename:', error);
+        return 'document';
     }
 }
 
@@ -165,26 +185,39 @@ async function checkDependencies() {
 
 // Bind Event Listeners
 function bindEvents() {
-    // Document type change
-    document.getElementById('docType').addEventListener('change', function() {
-        if (this.value === 'CUSTOM') {
-            document.getElementById('customTypeDiv').style.display = 'block';
-        } else {
-            document.getElementById('customTypeDiv').style.display = 'none';
+    try {
+        // Document type change
+        const docTypeEl = document.getElementById('docType');
+        if (docTypeEl) {
+            docTypeEl.addEventListener('change', function() {
+                if (this.value === 'CUSTOM') {
+                    const customTypeDiv = document.getElementById('customTypeDiv');
+                    if (customTypeDiv) {
+                        customTypeDiv.style.display = 'block';
+                    }
+                } else {
+                    const customTypeDiv = document.getElementById('customTypeDiv');
+                    if (customTypeDiv) {
+                        customTypeDiv.style.display = 'none';
+                    }
+                }
+                updateProgress(1);
+                // Update PNG filename preview
+                if (typeof updatePngPreview === 'function') {
+                    updatePngPreview();
+                }
+            });
         }
-        updateProgress(1);
-        // Update PNG filename preview
-        if (typeof updatePngPreview === 'function') {
-            updatePngPreview();
+        
+        // Document number change - update PNG preview
+        const docNoEl = document.getElementById('docNo');
+        if (docNoEl) {
+            docNoEl.addEventListener('input', function() {
+                if (typeof updatePngPreview === 'function') {
+                    updatePngPreview();
+                }
+            });
         }
-    });
-    
-    // Document number change - update PNG preview
-    document.getElementById('docNo').addEventListener('input', function() {
-        if (typeof updatePngPreview === 'function') {
-            updatePngPreview();
-        }
-    });
     
     // Bank account change - handle existing select elements
     document.addEventListener('change', function(e) {
@@ -237,6 +270,10 @@ function bindEvents() {
         updateRemoveButtons();
         updateOfficeRemoveButtons();
     }, 100);
+    
+    } catch (error) {
+        console.error('Error binding events:', error);
+    }
 }
 
 // Set Current Date
