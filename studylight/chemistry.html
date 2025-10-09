@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry - StudyLight</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/subject.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-lightbulb"></i>
+                <span>StudyLight</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="chemistry.html" class="nav-link active">Chemistry</a>
+                <a href="index.html#about" class="nav-link">About</a>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <div class="container">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Chemistry</span>
+        </div>
+    </div>
+
+    <!-- Subject Header -->
+    <section class="subject-header">
+        <div class="container">
+            <div class="subject-info">
+                <div class="subject-icon chemistry-bg">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <div class="subject-details">
+                    <h1>CAIE O Level Chemistry</h1>
+                    <p>Complete revision guide covering all essential topics for your chemistry exam</p>
+                    <div class="subject-stats">
+                        <div class="stat">
+                            <span class="stat-number">1</span>
+                            <span class="stat-label">Available Chapter</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">11</span>
+                            <span class="stat-label">Topics Covered</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">100%</span>
+                            <span class="stat-label">Syllabus Match</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapters Grid -->
+    <section class="chapters">
+        <div class="container">
+            <div class="section-header">
+                <h2>Chemistry Chapters</h2>
+                <p>Select a chapter to start your revision journey</p>
+            </div>
+
+            <div class="chapters-grid">
+                <!-- Chapter 4: Electrochemistry -->
+                <div class="chapter-card available" onclick="openChapter('electrolysis')">
+                    <div class="chapter-header">
+                        <div class="chapter-number">04</div>
+                        <div class="chapter-status available">Available</div>
+                    </div>
+                    <div class="chapter-content">
+                        <h3>Electrochemistry</h3>
+                        <p>Master electrolysis, electrode reactions, and electroplating processes</p>
+                        <div class="chapter-topics">
+                            <span class="topic-tag">Electrolysis</span>
+                            <span class="topic-tag">Electrodes</span>
+                            <span class="topic-tag">Ionic Compounds</span>
+                            <span class="topic-tag">Fuel Cells</span>
+                        </div>
+                        <div class="chapter-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%"></div>
+                            </div>
+                            <span class="progress-text">11/11 Topics</span>
+                        </div>
+                    </div>
+                    <div class="chapter-footer">
+                        <div class="chapter-meta">
+                            <span><i class="fas fa-clock"></i> 45 min read</span>
+                            <span><i class="fas fa-bookmark"></i> Essential</span>
+                        </div>
+                        <div class="chapter-action">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coming Soon Chapters -->
+                <div class="chapter-card coming-soon">
+                    <div class="chapter-header">
+                        <div class="chapter-number">01</div>
+                        <div class="chapter-status coming-soon">Coming Soon</div>
+                    </div>
+                    <div class="chapter-content">
+                        <h3>Particulate Nature of Matter</h3>
+                        <p>States of matter, kinetic theory, and changes of state</p>
+                        <div class="chapter-topics">
+                            <span class="topic-tag disabled">Solids, Liquids, Gases</span>
+                            <span class="topic-tag disabled">Kinetic Theory</span>
+                            <span class="topic-tag disabled">Diffusion</span>
+                        </div>
+                        <div class="chapter-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0/8 Topics</span>
+                        </div>
+                    </div>
+                    <div class="chapter-footer">
+                        <div class="chapter-meta">
+                            <span><i class="fas fa-clock"></i> - min read</span>
+                            <span><i class="fas fa-bookmark"></i> Essential</span>
+                        </div>
+                        <div class="chapter-action disabled">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chapter-card coming-soon">
+                    <div class="chapter-header">
+                        <div class="chapter-number">02</div>
+                        <div class="chapter-status coming-soon">Coming Soon</div>
+                    </div>
+                    <div class="chapter-content">
+                        <h3>Experimental Techniques</h3>
+                        <p>Measurement, purification, and identification methods</p>
+                        <div class="chapter-topics">
+                            <span class="topic-tag disabled">Measurement</span>
+                            <span class="topic-tag disabled">Purification</span>
+                            <span class="topic-tag disabled">Identification</span>
+                        </div>
+                        <div class="chapter-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0/7 Topics</span>
+                        </div>
+                    </div>
+                    <div class="chapter-footer">
+                        <div class="chapter-meta">
+                            <span><i class="fas fa-clock"></i> - min read</span>
+                            <span><i class="fas fa-bookmark"></i> Essential</span>
+                        </div>
+                        <div class="chapter-action disabled">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chapter-card coming-soon">
+                    <div class="chapter-header">
+                        <div class="chapter-number">03</div>
+                        <div class="chapter-status coming-soon">Coming Soon</div>
+                    </div>
+                    <div class="chapter-content">
+                        <h3>Atoms, Elements and Compounds</h3>
+                        <p>Atomic structure, periodic table, and chemical bonding</p>
+                        <div class="chapter-topics">
+                            <span class="topic-tag disabled">Atomic Structure</span>
+                            <span class="topic-tag disabled">Periodic Table</span>
+                            <span class="topic-tag disabled">Chemical Bonding</span>
+                        </div>
+                        <div class="chapter-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0/12 Topics</span>
+                        </div>
+                    </div>
+                    <div class="chapter-footer">
+                        <div class="chapter-meta">
+                            <span><i class="fas fa-clock"></i> - min read</span>
+                            <span><i class="fas fa-bookmark"></i> Essential</span>
+                        </div>
+                        <div class="chapter-action disabled">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chapter-card coming-soon">
+                    <div class="chapter-header">
+                        <div class="chapter-number">05</div>
+                        <div class="chapter-status coming-soon">Coming Soon</div>
+                    </div>
+                    <div class="chapter-content">
+                        <h3>Chemical Energetics</h3>
+                        <p>Energy changes in chemical reactions</p>
+                        <div class="chapter-topics">
+                            <span class="topic-tag disabled">Exothermic Reactions</span>
+                            <span class="topic-tag disabled">Endothermic Reactions</span>
+                            <span class="topic-tag disabled">Energy Diagrams</span>
+                        </div>
+                        <div class="chapter-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0/6 Topics</span>
+                        </div>
+                    </div>
+                    <div class="chapter-footer">
+                        <div class="chapter-meta">
+                            <span><i class="fas fa-clock"></i> - min read</span>
+                            <span><i class="fas fa-bookmark"></i> Essential</span>
+                        </div>
+                        <div class="chapter-action disabled">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chapter-card coming-soon">
+                    <div class="chapter-header">
+                        <div class="chapter-number">06</div>
+                        <div class="chapter-status coming-soon">Coming Soon</div>
+                    </div>
+                    <div class="chapter-content">
+                        <h3>Chemical Reactions</h3>
+                        <p>Types of reactions, rates, and equilibrium</p>
+                        <div class="chapter-topics">
+                            <span class="topic-tag disabled">Reaction Types</span>
+                            <span class="topic-tag disabled">Reaction Rates</span>
+                            <span class="topic-tag disabled">Equilibrium</span>
+                        </div>
+                        <div class="chapter-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0/9 Topics</span>
+                        </div>
+                    </div>
+                    <div class="chapter-footer">
+                        <div class="chapter-meta">
+                            <span><i class="fas fa-clock"></i> - min read</span>
+                            <span><i class="fas fa-bookmark"></i> Essential</span>
+                        </div>
+                        <div class="chapter-action disabled">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Access Panel -->
+    <section class="quick-access">
+        <div class="container">
+            <h3>Quick Access</h3>
+            <div class="quick-links">
+                <a href="electrolysis.html" class="quick-link available">
+                    <i class="fas fa-bolt"></i>
+                    <span>Electrolysis Guide</span>
+                </a>
+                <a href="#" class="quick-link disabled">
+                    <i class="fas fa-formula"></i>
+                    <span>Formula Sheet</span>
+                </a>
+                <a href="#" class="quick-link disabled">
+                    <i class="fas fa-flask"></i>
+                    <span>Practical Guide</span>
+                </a>
+                <a href="#" class="quick-link disabled">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Practice Questions</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>StudyLight</span>
+                    </div>
+                    <p>Illuminating knowledge for CAIE O Level students</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="index.html">Home</a>
+                    <a href="chemistry.html">Chemistry</a>
+                    <a href="index.html#about">About</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Chemistry</h4>
+                    <a href="electrolysis.html">Electrolysis</a>
+                    <a href="#" class="disabled">More chapters (Soon)</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 StudyLight. Made for students, by students.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
