@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Chess for Blind & Deaf</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background: #1a1a1a;
+            color: white;
+            touch-action: none;
+        }
+
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Status display in corner */
+        #status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 200px;
+            z-index: 10;
+        }
+
+        #status div {
+            margin: 3px 0;
+        }
+
+        /* Visual vibration indicator */
+        #vibration-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 255, 0, 0);
+            pointer-events: none;
+            z-index: 1000;
+            transition: background 0.1s;
+        }
+
+        #vibration-flash.active {
+            background: rgba(0, 255, 0, 0.4);
+        }
+
+        /* Main interaction area */
+        #interaction-area {
+            width: 90vw;
+            height: 90vh;
+            background: #2a2a2a;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 3px solid #444;
+        }
+
+        /* Slider container */
+        #slider-container {
+            width: 80%;
+            height: 80%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #slider-container.active {
+            display: flex;
+        }
+
+        #slider-label {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #slider-wrapper {
+            position: relative;
+            width: 100px;
+            height: 70vh;
+            max-height: 500px;
+        }
+
+        #slider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 100%;
+            background: linear-gradient(to bottom, #666, #333);
+            border-radius: 30px;
+            border: 2px solid #888;
+        }
+
+        .checkpoint {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: #00ff00;
+            border-radius: 2px;
+        }
+
+        #slider-thumb {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: #00aaff;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            cursor: pointer;
+            touch-action: none;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
+            z-index: 10;
+        }
+
+        #current-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin-top: 30px;
+            color: #00ff00;
+        }
+
+        /* Start screen */
+        #start-screen {
+            text-align: center;
+            padding: 40px;
+        }
+
+        #start-screen h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        #start-screen p {
+            font-size: 18px;
+            margin: 10px 0;
+            opacity: 0.8;
+        }
+
+        /* Game mode selection */
+        #mode-selection {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        #mode-selection.active {
+            display: block;
+        }
+
+        #mode-selection h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        #mode-selection p {
+            font-size: 20px;
+            margin: 15px 0;
+        }
+
+        /* Waiting screen */
+        #waiting-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            font-size: 24px;
+        }
+
+        #waiting-screen.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            #status {
+                font-size: 10px;
+                max-width: 150px;
+                padding: 8px;
+            }
+
+            #start-screen h1 {
+                font-size: 24px;
+            }
+
+            #start-screen p {
+                font-size: 14px;
+            }
+
+            #slider-label {
+                font-size: 20px;
+            }
+
+            #current-value {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Visual vibration feedback -->
+    <div id="vibration-flash"></div>
+
+    <!-- Status display -->
+    <div id="status">
+        <div><strong>Status:</strong> <span id="game-status">Ready</span></div>
+        <div><strong>Mode:</strong> <span id="game-mode">-</span></div>
+        <div><strong>Turn:</strong> <span id="current-turn">-</span></div>
+        <div><strong>Move:</strong> <span id="current-move">-</span></div>
+        <div><strong>Position:</strong> <span id="board-position">Start</span></div>
+    </div>
+
+    <!-- Main container -->
+    <div id="container">
+        <div id="interaction-area">
+            <!-- Start screen -->
+            <div id="start-screen">
+                <h1>Chess for Blind & Deaf</h1>
+                <p>Long press for 3 seconds to start</p>
+                <p style="margin-top: 30px; font-size: 14px;">
+                    After starting:<br>
+                    Single tap = You are White<br>
+                    Double tap = You are Black
+                </p>
+            </div>
+
+            <!-- Mode selection -->
+            <div id="mode-selection">
+                <h2>Select Color</h2>
+                <p>Single tap = White</p>
+                <p>Double tap = Black</p>
+            </div>
+
+            <!-- Waiting for Stockfish -->
+            <div id="waiting-screen">
+                <p>Waiting for opponent move...</p>
+            </div>
+
+            <!-- Slider interface -->
+            <div id="slider-container">
+                <div id="slider-label">Slide to select</div>
+                <div id="slider-wrapper">
+                    <div id="slider">
+                        <!-- Checkpoints will be added dynamically -->
+                    </div>
+                    <div id="slider-thumb"></div>
+                </div>
+                <div id="current-value">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
