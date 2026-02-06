@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>A Special Question 💘</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      color: #fff;
+      position: relative;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      font-size: 20px;
+      opacity: 0.6;
+      pointer-events: none;
+      animation: float linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 30px 25px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 10;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .step {
+      display: none;
+      animation: fadeInScale 0.6s ease both;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .icon {
+      font-size: 70px;
+      margin-bottom: 20px;
+      display: inline-block;
+      animation: bounce 2s ease infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+      animation: glow 2s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 255, 255, 0.4); }
+      50% { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 25px rgba(255, 255, 255, 0.7); }
+    }
+
+    .message {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin: 20px 0;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .question {
+      font-size: 1.3em;
+      font-weight: 600;
+      margin: 25px 0 30px;
+      color: #fff;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .button-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 25px;
+      min-height: 60px;
+      position: relative;
+    }
+
+    button {
+      padding: 15px 35px;
+      font-size: 1.1em;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+      touch-action: manipulation;
+      position: relative;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #fff, #f8f9fa);
+      color: #e91e63;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .btn-no {
+      background: linear-gradient(135deg, #ff6b9d, #ff4d6d);
+      color: #fff;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .btn-single {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: #fff;
+      padding: 18px 50px;
+      font-size: 1.2em;
+    }
+
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: #fff;
+      transform: scale(1.3);
+    }
+
+    .final-no-btn {
+      position: absolute;
+      transition: all 0.3s ease;
+    }
+
+    .attempts-counter {
+      margin-top: 15px;
+      font-size: 0.95em;
+      color: rgba(255, 255, 255, 0.9);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .attempts-counter.show {
+      opacity: 1;
+    }
+
+    .story-text {
+      font-size: 1em;
+      line-height: 1.8;
+      margin: 20px 0;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    @keyframes confettiFall {
+      to {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    .emoji-burst {
+      position: fixed;
+      font-size: 30px;
+      pointer-events: none;
+      animation: burst 2s ease-out;
+      z-index: 9999;
+    }
+
+    @keyframes burst {
+      0% {
+        transform: translate(0, 0) scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(1);
+        opacity: 0;
+      }
+    }
+
+    .typing-text {
+      overflow: hidden;
+      border-right: 2px solid rgba(255, 255, 255, 0.7);
+      white-space: nowrap;
+      margin: 0 auto;
+      animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+      display: inline-block;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: rgba(255, 255, 255, 0.7); }
+    }
+
+    .final-message {
+      line-height: 1.8;
+      font-size: 1.05em;
+    }
+
+    .heart-burst {
+      display: inline-block;
+      animation: heartPulse 1s ease infinite;
+    }
+
+    @keyframes heartPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 480px) {
+      .container {
+        padding: 25px 20px;
+      }
+
+      h1 {
+        font-size: 1.7em;
+      }
+
+      .icon {
+        font-size: 60px;
+      }
+
+      .question {
+        font-size: 1.15em;
+      }
+
+      button {
+        padding: 14px 30px;
+        font-size: 1em;
+      }
+
+      .btn-single {
+        padding: 16px 40px;
+        font-size: 1.1em;
+      }
+    }
+
+    @media (max-height: 700px) {
+      .container {
+        padding: 20px 20px;
+      }
+
+      .icon {
+        font-size: 50px;
+        margin-bottom: 15px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      .question {
+        margin: 15px 0 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="particles"></div>
+
+  <div class="container">
+    <!-- Step 1: Welcome -->
+    <div class="step active" id="step1">
+      <div class="icon">✨</div>
+      <h1>Hey Arohi! 👋</h1>
+      <p class="message">
+        I've been thinking about something special for a while now...
+      </p>
+      <p class="question">Would you like to go on a little journey with me? 🌟</p>
+      <div class="button-container">
+        <button class="btn-yes" onclick="nextStep(2)">Let's go! ✨</button>
+        <button class="btn-no" id="no1" ontouchstart="moveNoButton(1)" onmouseover="moveNoButton(1)">Maybe not 🤔</button>
+      </div>
+      <div class="attempts-counter" id="attempts1"></div>
+    </div>
+
+    <!-- Step 2: Magic Question -->
+    <div class="step" id="step2">
+      <div class="icon">🎭</div>
+      <h1>Wonderful! ✨</h1>
+      <p class="story-text">
+        Life is full of ordinary moments, but sometimes...<br>
+        we need a little magic to make it extraordinary.
+      </p>
+      <p class="question">Do you believe in creating magical experiences? 🌠</p>
+      <div class="button-container">
+        <button class="btn-yes" onclick="nextStep(3)">Yes! 💫</button>
+        <button class="btn-no" id="no2" ontouchstart="moveNoButton(2)" onmouseover="moveNoButton(2)">Not really 🙈</button>
+      </div>
+      <div class="attempts-counter" id="attempts2"></div>
+      <div class="progress-dots">
+        <div class="dot"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <!-- Step 3: Connection Question -->
+    <div class="step" id="step3">
+      <div class="icon">🌸</div>
+      <h1>That's beautiful! 🌺</h1>
+      <p class="story-text">
+        Some connections are instant, like lightning...<br>
+        Others grow slowly, like the most beautiful flowers.
+      </p>
+      <p class="question">Do you feel special connections with people? 💖</p>
+      <div class="button-container">
+        <button class="btn-yes" onclick="nextStep(4)">Absolutely! 💝</button>
+        <button class="btn-no" id="no3" ontouchstart="moveNoButton(3)" onmouseover="moveNoButton(3)">I'm not sure 😶</button>
+      </div>
+      <div class="attempts-counter" id="attempts3"></div>
+      <div class="progress-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <!-- Step 4: Adventure Question -->
+    <div class="step" id="step4">
+      <div class="icon">🎪</div>
+      <h1>Amazing! 🎨</h1>
+      <p class="story-text">
+        Life's greatest adventures don't always require a map...<br>
+        Sometimes they just need two hearts willing to explore together.
+      </p>
+      <p class="question">Are you ready for an adventure of the heart? 🎢</p>
+      <div class="button-container">
+        <button class="btn-yes" onclick="nextStep(5)">Count me in! 🚀</button>
+        <button class="btn-no" id="no4" ontouchstart="moveNoButton(4)" onmouseover="moveNoButton(4)">Too scary 😰</button>
+      </div>
+      <div class="attempts-counter" id="attempts4"></div>
+      <div class="progress-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <!-- Step 5: Love Question -->
+    <div class="step" id="step5">
+      <div class="icon">💫</div>
+      <h1>Incredible! ✨</h1>
+      <p class="story-text">
+        They say when you know, you just know...<br>
+        Like stars recognizing their constellation,<br>
+        like waves knowing their shore.
+      </p>
+      <p class="question">Do you believe in love that makes your heart smile? 😊💕</p>
+      <div class="button-container">
+        <button class="btn-yes" onclick="nextStep(6)">Yes, I do! 💗</button>
+        <button class="btn-no" id="no5" ontouchstart="moveNoButton(5)" onmouseover="moveNoButton(5)">Hmm... 🤷‍♀️</button>
+      </div>
+      <div class="attempts-counter" id="attempts5"></div>
+      <div class="progress-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <!-- Step 6: The Big Question -->
+    <div class="step" id="step6">
+      <div class="icon"><span class="heart-burst">💝</span></div>
+      <h1>Arohi... 💕</h1>
+      <p class="story-text">
+        Every step of this journey has been leading to this moment...<br>
+        You make ordinary days feel like celebrations,<br>
+        and quiet moments feel like poetry.
+      </p>
+      <p class="question" style="font-size: 1.4em; margin-top: 30px;">
+        Will you be my Valentine? 💘
+      </p>
+      <div class="button-container" id="finalButtons">
+        <button class="btn-yes" id="finalYes" onclick="sayYes()">Yes! 💖</button>
+        <button class="btn-no final-no-btn" id="finalNo" ontouchstart="moveFinalNo()" onmouseover="moveFinalNo()">No 🙃</button>
+      </div>
+      <div class="attempts-counter" id="attempts6"></div>
+      <div class="progress-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot active"></div>
+      </div>
+    </div>
+
+    <!-- Final: Success -->
+    <div class="step" id="stepFinal">
+      <div class="icon" style="font-size: 100px;">🎉</div>
+      <h1>YAAAAY!!! 💕✨</h1>
+      <div class="final-message">
+        <p style="font-size: 1.3em; margin: 20px 0;">
+          You just made me the happiest person! 😄
+        </p>
+        <p style="margin: 20px 0; line-height: 2;">
+          Every sunrise will be brighter,<br>
+          every moment more meaningful,<br>
+          every day an adventure with you! 🌈
+        </p>
+        <p style="font-size: 1.4em; margin-top: 30px;">
+          <strong>Forever grateful for you 💝</strong>
+        </p>
+        <p style="margin-top: 20px; font-size: 0.95em; opacity: 0.9;">
+          — Your Valentine 💘
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    const noClickCounts = [0, 0, 0, 0, 0, 0];
+    let finalNoCount = 0;
+    let finalYesSize = 1.1;
+
+    const noMessages = [
+      ["Maybe not 🤔", "Think again! 🙏", "Please? 🥺", "I promise it's worth it! ✨"],
+      ["Not really 🙈", "Give magic a chance! 🎩", "But it's fun! 🎪", "Trust me! 💫"],
+      ["I'm not sure 😶", "You definitely do! 💝", "I can see it in you! ✨", "Please! 🙏"],
+      ["Too scary 😰", "I'll be with you! 🤝", "Don't be afraid! 💪", "Let's be brave! 🦸‍♀️"],
+      ["Hmm... 🤷‍♀️", "I know you do! 💕", "Deep down you believe! ✨", "Trust your heart! 💗"],
+      ["No 🙃", "Are you sure? 🤔", "Really? 😢", "Please? 🥺", "Think about it! 💭", "Pretty please? 🙏", "I'm begging! 😭", "Don't break my heart! 💔"]
+    ];
+
+    // Create floating particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const particles = ['✨', '💫', '⭐', '🌟', '💖', '💕', '💗', '💝'];
+      
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          particle.innerHTML = particles[Math.floor(Math.random() * particles.length)];
+          particle.style.left = Math.random() * 100 + 'vw';
+          particle.style.animationDuration = (Math.random() * 8 + 7) + 's';
+          particle.style.animationDelay = Math.random() * 5 + 's';
+          container.appendChild(particle);
+        }, i * 200);
+      }
+    }
+
+    createParticles();
+
+    function nextStep(step) {
+      createEmojiBurst(['✨', '💫', '⭐', '🌟']);
+      document.getElementById(`step${currentStep}`).classList.remove('active');
+      currentStep = step;
+      setTimeout(() => {
+        document.getElementById(`step${step}`).classList.add('active');
+      }, 100);
+    }
+
+    function moveNoButton(step) {
+      const noBtn = document.getElementById(`no${step}`);
+      const attemptsDiv = document.getElementById(`attempts${step}`);
+      const container = document.querySelector('.container');
+      
+      noClickCounts[step]++;
+      const count = noClickCounts[step];
+
+      // Change button text
+      const messages = noMessages[step - 1];
+      if (count < messages.length) {
+        noBtn.innerHTML = messages[count];
+      }
+
+      // Show attempts
+      attemptsDiv.classList.add('show');
+      attemptsDiv.innerHTML = `😅 Attempts: ${count} - Just click Yes! 💖`;
+
+      // Move button
+      const maxX = container.offsetWidth - noBtn.offsetWidth - 40;
+      const maxY = 80;
+
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+
+      // Create sad emojis
+      createEmojiBurst(['😢', '💔', '😭', '🥺']);
+    }
+
+    function moveFinalNo() {
+      const noBtn = document.getElementById('finalNo');
+      const yesBtn = document.getElementById('finalYes');
+      const attemptsDiv = document.getElementById('attempts6');
+      const container = document.querySelector('.button-container');
+      
+      finalNoCount++;
+
+      // Make Yes button bigger
+      finalYesSize += 0.15;
+      yesBtn.style.transform = `scale(${finalYesSize})`;
+      yesBtn.style.zIndex = '100';
+
+      // Change No button text
+      const messages = noMessages[5];
+      if (finalNoCount < messages.length) {
+        noBtn.innerHTML = messages[finalNoCount];
+      }
+
+      // Show attempts
+      attemptsDiv.classList.add('show');
+      attemptsDiv.innerHTML = `😏 The "Yes" button is growing! Attempts: ${finalNoCount}`;
+
+      // Move button faster
+      const maxX = container.offsetWidth - noBtn.offsetWidth - 40;
+      const maxY = 80;
+
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+
+      // After 8 attempts, make it super hard
+      if (finalNoCount > 7) {
+        noBtn.style.transition = 'all 0.05s ease';
+        noBtn.style.fontSize = Math.max(0.6, 1.1 - finalNoCount * 0.05) + 'em';
+        attemptsDiv.innerHTML = `🎯 Why are you doing this to yourself? 😂 Just say YES! 💝`;
+      }
+
+      createEmojiBurst(['😭', '💔', '🥺', '😢']);
+    }
+
+    function sayYes() {
+      document.getElementById('step6').classList.remove('active');
+      
+      // Massive celebration
+      createConfetti(300);
+      createEmojiBurst(['❤️', '💕', '💖', '💗', '💝', '🎉', '✨', '🎊', '💐', '🌹'], 50);
+      
+      // Change background
+      document.body.style.background = 'linear-gradient(135deg, #f093fb, #f5576c, #ffd3a5, #ff9a9e)';
+      
+      setTimeout(() => {
+        document.getElementById('stepFinal').classList.add('active');
+      }, 600);
+
+      // Add more particles
+      for (let i = 0; i < 40; i++) {
+        setTimeout(() => {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          particle.innerHTML = '💖';
+          particle.style.left = Math.random() * 100 + 'vw';
+          particle.style.fontSize = Math.random() * 20 + 25 + 'px';
+          particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+          document.getElementById('particles').appendChild(particle);
+        }, i * 80);
+      }
+    }
+
+    function createConfetti(count = 150) {
+      const colors = ['#ff6b9d', '#ffc371', '#c779d0', '#4bc0c8', '#ff6b6b', '#ffdd59', '#f093fb'];
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.top = '-10px';
+          confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear`;
+          confetti.style.width = Math.random() * 8 + 6 + 'px';
+          confetti.style.height = Math.random() * 8 + 6 + 'px';
+          document.body.appendChild(confetti);
+
+          setTimeout(() => confetti.remove(), 5000);
+        }, i * 20);
+      }
+    }
+
+    function createEmojiBurst(emojis, count = 15) {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const emoji = document.createElement('div');
+          emoji.className = 'emoji-burst';
+          emoji.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+          
+          const angle = (Math.PI * 2 * i) / count;
+          const distance = Math.random() * 200 + 100;
+          const tx = Math.cos(angle) * distance;
+          const ty = Math.sin(angle) * distance;
+          
+          emoji.style.left = centerX + 'px';
+          emoji.style.top = centerY + 'px';
+          emoji.style.setProperty('--tx', tx + 'px');
+          emoji.style.setProperty('--ty', ty + 'px');
+          
+          document.body.appendChild(emoji);
+
+          setTimeout(() => emoji.remove(), 2000);
+        }, i * 30);
+      }
+    }
+
+    // Prevent zoom on double tap
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  </script>
+
+</body>
+</html>
