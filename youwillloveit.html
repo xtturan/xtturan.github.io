@@ -135,8 +135,12 @@
       justify-content: center;
       flex-wrap: wrap;
       margin-top: 25px;
-      min-height: 60px;
+      min-height: 160px;
       position: relative;
+    }
+
+    #finalButtons {
+      min-height: 220px;
     }
 
     button {
@@ -161,6 +165,21 @@
       color: #e91e63;
       flex: 1;
       min-width: 120px;
+      z-index: 100;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: auto;
+    }
+
+    #finalYes {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 150;
+      display: block !important;
     }
 
     .btn-no {
@@ -168,6 +187,11 @@
       color: #fff;
       flex: 1;
       min-width: 120px;
+      z-index: 10;
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     .btn-single {
@@ -200,6 +224,9 @@
     .final-no-btn {
       position: absolute;
       transition: all 0.3s ease;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     .attempts-counter {
@@ -553,7 +580,7 @@
     function moveNoButton(step) {
       const noBtn = document.getElementById(`no${step}`);
       const attemptsDiv = document.getElementById(`attempts${step}`);
-      const container = document.querySelector('.container');
+      const container = document.querySelector('.button-container');
       
       noClickCounts[step]++;
       const count = noClickCounts[step];
@@ -568,16 +595,19 @@
       attemptsDiv.classList.add('show');
       attemptsDiv.innerHTML = `😅 Attempts: ${count} - Just click Yes! 💖`;
 
-      // Move button
-      const maxX = container.offsetWidth - noBtn.offsetWidth - 40;
-      const maxY = 80;
+      // Move button - keep it well below the Yes button (which is at top: 0)
+      const maxX = container.offsetWidth - noBtn.offsetWidth - 20;
+      const minY = 85; // Start well below the Yes button
+      const maxY = 145; // Stay in the lower half
 
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
+      let x = Math.random() * maxX;
+      let y = Math.random() * (maxY - minY) + minY;
 
       noBtn.style.position = 'absolute';
       noBtn.style.left = x + 'px';
       noBtn.style.top = y + 'px';
+      noBtn.style.transform = 'none';
+      noBtn.style.zIndex = '10';
 
       // Create sad emojis
       createEmojiBurst(['😢', '💔', '😭', '🥺']);
@@ -591,10 +621,10 @@
       
       finalNoCount++;
 
-      // Make Yes button bigger
+      // Make Yes button bigger and ensure it stays on top
       finalYesSize += 0.15;
-      yesBtn.style.transform = `scale(${finalYesSize})`;
-      yesBtn.style.zIndex = '100';
+      yesBtn.style.transform = `translateX(-50%) scale(${finalYesSize})`;
+      yesBtn.style.zIndex = '200';
 
       // Change No button text
       const messages = noMessages[5];
@@ -606,15 +636,18 @@
       attemptsDiv.classList.add('show');
       attemptsDiv.innerHTML = `😏 The "Yes" button is growing! Attempts: ${finalNoCount}`;
 
-      // Move button faster
-      const maxX = container.offsetWidth - noBtn.offsetWidth - 40;
-      const maxY = 80;
+      // Move button - keep it in the bottom area, well below Yes button
+      const maxX = container.offsetWidth - noBtn.offsetWidth - 20;
+      const minY = 100; // Keep it very far below the Yes button
+      const maxY = 180;
 
       const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
+      const y = Math.random() * (maxY - minY) + minY;
 
       noBtn.style.left = x + 'px';
       noBtn.style.top = y + 'px';
+      noBtn.style.zIndex = '10';
+      noBtn.style.transform = 'translateX(0)';
 
       // After 8 attempts, make it super hard
       if (finalNoCount > 7) {
